@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Generator Ijazah — Lokal & Aman</title>
+<title>Generator Ijazah — MDTU As'saamiyah</title>
+<link rel="icon" href="assets/logo.svg">
 <!-- Kunci keamanan: hanya boleh memuat/menghubungi sumber dari server ini sendiri.
      Browser DILARANG mengirim data ke alamat luar mana pun. -->
 <meta http-equiv="Content-Security-Policy"
@@ -17,73 +18,108 @@
 <script src="lib/docxtemplater.js"></script>
 </head>
 <body>
-<header>
-  <h1>📜 Generator Ijazah</h1>
-  <span class="badge" title="Semua proses di browser. Tidak ada data yang dikirim ke server.">🔒 Data lokal — tidak dikirim ke server</span>
+
+<header class="site-header">
+  <div class="brand">
+    <img id="brandLogo" class="brand-logo" src="assets/logo.svg" alt="Logo MDTU As'saamiyah">
+    <div class="brand-text">
+      <div class="brand-name">MDTU As'saamiyah</div>
+      <div class="brand-sub">Madrasah Diniyah Takmiliyah Ula · Desa Pabean Udik, Indramayu</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="pill secure" title="Semua proses di browser. Tidak ada data yang dikirim ke server.">🔒 Data lokal — aman</span>
+  </div>
 </header>
 
+<div class="hero">
+  <h1>Generator Ijazah Digital</h1>
+  <p>Isi data sekali, cetak rapi di atas blangko resmi. Pratinjau langsung, unduh PDF &amp; Word —
+     <b>tanpa aplikasi, tanpa data tersimpan di server.</b></p>
+</div>
+
 <main>
-  <!-- ============ PANEL KIRI: INPUT ============ -->
-  <section class="panel input">
+  <!-- ============ KIRI: INPUT ============ -->
+  <section class="card input">
+    <div class="card-head"><span class="ic">📝</span><h2>Data Santri</h2></div>
+
     <div class="tabs">
       <button class="tab active" data-tab="excel">📥 Upload Excel</button>
       <button class="tab" data-tab="manual">✍️ Input Manual</button>
     </div>
 
     <div class="tabpane" id="tab-excel">
-      <p class="hint">Pilih file <b>.xlsx</b>. Header kolom harus sesuai format
-        (lihat tombol <i>Unduh contoh Excel</i>).</p>
-      <input type="file" id="excelFile" accept=".xlsx,.xlsm">
-      <button id="sampleXlsx" class="ghost small">⬇️ Unduh contoh Excel</button>
+      <p class="hint">Pilih file <b>.xlsx</b>. Header kolom harus sesuai format.</p>
+      <label class="file-drop" for="excelFile">
+        <span class="fd-ic">⬆️</span>
+        <span>Klik untuk pilih file Excel</span>
+        <input type="file" id="excelFile" accept=".xlsx,.xlsm" hidden>
+      </label>
+      <button id="sampleXlsx" class="btn ghost sm">⬇️ Unduh contoh Excel</button>
       <div id="excelStatus" class="status"></div>
     </div>
 
     <div class="tabpane hidden" id="tab-manual">
-      <p class="hint">Isi data lalu <b>Tambah</b>. Field tetap (nama madrasah dll)
-        tersimpan di browser supaya tidak ketik ulang.</p>
+      <p class="hint">Isi data lalu <b>Tambah</b>. Field tetap tersimpan di browser ini
+        supaya tidak ketik ulang.</p>
       <form id="manualForm"></form>
-      <button id="addRecord" class="primary small">➕ Tambah ke daftar</button>
+      <button id="addRecord" class="btn primary sm">➕ Tambah ke daftar</button>
     </div>
 
     <div class="records">
       <div class="records-head">
         <b>Daftar data</b>
-        <span id="recCount" class="muted">0 data</span>
-        <button id="clearRecords" class="ghost small">🗑️ Kosongkan</button>
+        <span id="recCount" class="chip">0 data</span>
+        <button id="clearRecords" class="btn ghost xs">🗑️ Kosongkan</button>
       </div>
       <ol id="recordList"></ol>
     </div>
 
     <details class="adv">
-      <summary>Pengaturan lanjutan</summary>
+      <summary>⚙️ Pengaturan lanjutan</summary>
       <label class="row">
-        <span>Background blangko (opsional, untuk preview WYSIWYG)</span>
+        <span>Background blangko (opsional — untuk pratinjau WYSIWYG)</span>
         <input type="file" id="bgImage" accept="image/*">
       </label>
-      <p class="hint">Unggah hasil scan blangko kosong (border hijau) — hanya untuk
-        tampilan preview, tidak ikut ke PDF cetak.</p>
+      <p class="hint">Unggah scan blangko kosong (border hijau) agar pratinjau seperti aslinya.
+        Tidak ikut tercetak ke PDF.</p>
     </details>
   </section>
 
-  <!-- ============ PANEL KANAN: PREVIEW ============ -->
-  <section class="panel preview">
-    <div class="preview-bar">
-      <button id="prev" class="ghost">◀</button>
-      <span id="navLabel" class="muted">— / —</span>
-      <button id="next" class="ghost">▶</button>
-      <span class="spacer"></span>
-      <button id="dlPdfOne" class="primary">⬇️ PDF (ini)</button>
-      <button id="dlPdfAll" class="primary">⬇️ PDF (semua)</button>
-      <button id="dlDocxOne" class="ghost">⬇️ Word (ini)</button>
-      <button id="dlDocxAll" class="ghost">⬇️ Word (semua)</button>
+  <!-- ============ KANAN: PREVIEW ============ -->
+  <section class="card preview">
+    <div class="card-head">
+      <span class="ic">👁️</span><h2>Pratinjau</h2>
+      <div class="nav">
+        <button id="prev" class="btn ghost xs">◀</button>
+        <span id="navLabel" class="chip">— / —</span>
+        <button id="next" class="btn ghost xs">▶</button>
+      </div>
     </div>
+
+    <div class="toolbar">
+      <button id="dlPdfOne" class="btn primary">⬇️ PDF (ini)</button>
+      <button id="dlPdfAll" class="btn primary">⬇️ PDF (semua)</button>
+      <button id="dlDocxOne" class="btn ghost">⬇️ Word (ini)</button>
+      <button id="dlDocxAll" class="btn ghost">⬇️ Word (semua)</button>
+    </div>
+
     <div class="stage">
       <div id="page" class="a4"></div>
     </div>
-    <p class="hint center">Preview ini = teks yang akan tercetak di atas blangko.
-      Posisi/ukuran/bold sesuai format asli.</p>
+    <p class="hint center">Pratinjau = teks yang akan tercetak di atas blangko.
+      Posisi, ukuran, dan cetak tebal sesuai format resmi.</p>
   </section>
 </main>
+
+<footer class="site-footer">
+  <img class="foot-logo" src="assets/logo.svg" alt="">
+  <div>
+    <b>MDTU As'saamiyah</b> — Madrasah Diniyah Takmiliyah Ula<br>
+    <span class="muted">Dibuat sebagai percontohan madrasah modern · Desa Pabean Udik, Kec. Indramayu</span>
+  </div>
+  <div class="foot-badge">🔒 Data tidak dikirim ke server</div>
+</footer>
 
 <script src="app.js"></script>
 </body>
