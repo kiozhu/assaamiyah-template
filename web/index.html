@@ -15,7 +15,6 @@
 <script src="lib/pdf-lib.min.js"></script>
 <script src="lib/fontkit.umd.min.js"></script>
 <script src="lib/pizzip.min.js"></script>
-<script src="lib/docxtemplater.js"></script>
 </head>
 <body>
 
@@ -42,10 +41,16 @@
 </header>
 
 <div class="hero reveal">
-  <h1>Generator Ijazah Digital</h1>
-  <p>Isi data sekali, cetak rapi di atas blangko resmi. Pratinjau langsung, unduh PDF &amp; Word —
+  <h1>Generator Dokumen Digital</h1>
+  <p>Pilih dokumen, isi data sekali, cetak rapi di atas blangko resmi. Pratinjau langsung, unduh PDF &amp; Word —
      <b>tanpa aplikasi, tanpa data tersimpan di server.</b></p>
 </div>
+
+<div class="tpl-bar reveal">
+  <span class="tpl-bar-label">📁 Dokumen:</span>
+  <div id="tplPicker" class="tpl-picker"></div>
+</div>
+<div id="tplNotice" class="tpl-notice hidden"></div>
 
 <main>
   <!-- ============ KIRI: INPUT ============ -->

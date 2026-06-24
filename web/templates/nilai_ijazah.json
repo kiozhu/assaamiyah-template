@@ -1,0 +1,10 @@
+{
+  "name": "Nilai Ijazah",
+  "page": {
+    "w": 595.28,
+    "h": 841.89,
+    "unit": "pt"
+  },
+  "background": "assets/blangko/nilai_ijazah.jpg",
+  "fields": []
+}

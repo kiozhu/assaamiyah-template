@@ -76,6 +76,23 @@ main .preview.reveal{animation-delay:.28s}
 .hero p{margin:14px auto 0;max-width:680px;color:var(--muted);font-size:15.5px}
 .hero b{color:#bff7d6;font-weight:600}
 
+/* ===== Template picker ===== */
+.tpl-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:1280px;margin:14px auto 0;padding:0 24px}
+.tpl-bar-label{font-family:var(--display);font-size:13px;color:var(--muted)}
+.tpl-picker{display:flex;gap:8px;flex-wrap:wrap}
+.tpl-pill{display:flex;align-items:center;gap:8px;font-family:var(--display);font-size:13.5px;font-weight:500;
+  padding:9px 16px;border-radius:999px;cursor:pointer;color:var(--ink);
+  background:var(--glass);border:1px solid var(--brd);transition:.2s}
+.tpl-pill:hover{border-color:var(--green-2)}
+.tpl-pill.active{background:linear-gradient(145deg,var(--green-2),var(--green));color:#04120a;
+  border-color:transparent;box-shadow:0 4px 16px rgba(31,174,95,.4)}
+.tpl-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.tpl-pill.ready .dot{background:#36e08f}
+.tpl-notice{max-width:1280px;margin:12px auto 0;padding:11px 18px;border-radius:12px;font-size:13px;
+  background:rgba(231,199,102,.12);border:1px solid rgba(231,199,102,.35);color:#f1e2a8}
+.tpl-notice.hidden{display:none}
+.tpl-notice a{color:#bff7d6;font-weight:600}
+
 /* ===== Layout ===== */
 main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-width:1280px;margin:0 auto;align-items:start}
 .card{position:relative;background:var(--glass);backdrop-filter:blur(16px) saturate(130%);

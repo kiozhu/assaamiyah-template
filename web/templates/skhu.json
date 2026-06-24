@@ -1,0 +1,10 @@
+{
+  "name": "SKHU",
+  "page": {
+    "w": 595.28,
+    "h": 841.89,
+    "unit": "pt"
+  },
+  "background": "assets/blangko/skhu.jpg",
+  "fields": []
+}
