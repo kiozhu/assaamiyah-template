@@ -18,6 +18,9 @@ Thumbs.db
 *.tmp
 ~$*
 
+# artefak analisis penempatan (PNG di root proyek; aset web ada di web/)
+/*.png
+
 # font besar (taruh manual di VPS bila perlu)
 web/assets/fonts/*.ttf
 web/assets/fonts/*.otf
