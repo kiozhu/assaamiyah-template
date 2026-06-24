@@ -21,10 +21,21 @@ const MIME = {
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(ROOT, req.url === '/' ? '/index.html' : req.url);
-  filePath = decodeURIComponent(filePath);
+  // Decode & buang query string DULU, sebelum join/normalize,
+  // supaya '..' ber-encode (%2e%2e) tidak bisa lolos pengecekan.
+  let urlPath;
+  try {
+    urlPath = decodeURIComponent(req.url.split('?')[0]);
+  } catch (e) {
+    res.writeHead(400);
+    return res.end('Bad Request');
+  }
+  if (urlPath === '/') urlPath = '/index.html';
 
-  if (!filePath.startsWith(ROOT)) {
+  const filePath = path.normalize(path.join(ROOT, urlPath));
+
+  // Harus tepat di dalam ROOT (cegah path traversal keluar web root).
+  if (filePath !== ROOT && !filePath.startsWith(ROOT + path.sep)) {
     res.writeHead(403);
     return res.end('Forbidden');
   }
