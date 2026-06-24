@@ -1,0 +1,63 @@
+/* ===== Editor layout ===== */
+.ed-nav{display:flex;align-items:center;gap:10px}
+.ed-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 20px;
+  background:rgba(6,22,14,.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:15}
+.ed-toolbar .sep{width:1px;height:24px;background:var(--brd);margin:0 4px}
+.tb-field{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);font-family:var(--display)}
+.tb-field select,.tb-field input[type=range]{accent-color:var(--green)}
+.tb-field select{background:rgba(0,0,0,.3);color:var(--ink);border:1px solid var(--brd);
+  border-radius:8px;padding:6px 8px;font-size:12.5px}
+#zoomVal{min-width:38px;color:var(--ink)}
+
+.ed-main{display:grid;grid-template-columns:1fr 320px;gap:18px;padding:18px;
+  max-width:1400px;margin:0 auto;align-items:start}
+
+/* canvas */
+.ed-canvas-wrap{display:flex;flex-direction:column;gap:8px}
+.ed-scroll{background:radial-gradient(circle at 50% 15%,rgba(31,174,95,.10),transparent 60%),rgba(0,0,0,.32);
+  border:1px solid var(--brd);border-radius:14px;padding:24px;overflow:auto;min-height:60vh;
+  display:flex;justify-content:center;align-items:flex-start}
+.ed-canvas{position:relative;background:#fff;transform-origin:top center;
+  box-shadow:0 0 0 1px rgba(255,255,255,.35),0 0 60px rgba(31,174,95,.15),0 26px 60px rgba(0,0,0,.5);
+  background-image:linear-gradient(rgba(0,80,40,.06) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(0,80,40,.06) 1px,transparent 1px);
+  background-size:24px 24px}
+.ed-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;opacity:.92;display:none;pointer-events:none}
+.ed-hint{font-size:12px;color:var(--muted);text-align:center}
+
+/* elemen di kanvas */
+.el{position:absolute;white-space:nowrap;line-height:1;cursor:grab;user-select:none;
+  padding:1px 2px;border:1px solid transparent;border-radius:3px}
+.el:hover{border-color:rgba(31,174,95,.5)}
+.el.sel{border-color:var(--green-2);box-shadow:0 0 0 2px rgba(31,174,95,.35),0 0 14px rgba(31,174,95,.4)}
+.el.field{outline:1px dashed rgba(31,140,200,.0)}
+.el.dragging{cursor:grabbing;opacity:.9}
+
+/* panel properti */
+.ed-props{position:sticky;top:78px}
+.prop-empty h3,.prop-head h3{margin:0 0 12px;font-family:var(--display);font-size:15px;color:#eafff3}
+.prop-stat{margin-top:14px;font-size:12.5px;color:var(--muted)}
+.prop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.prop-panel.hidden,.prop-empty.hidden{display:none}
+.fld{display:grid;gap:4px;margin-bottom:10px}
+.fld>span{font-size:11.5px;color:var(--muted);font-family:var(--display)}
+.fld input,.fld select{padding:8px 10px;border:1px solid var(--brd);border-radius:9px;font-size:13px;
+  background:rgba(0,0,0,.28);color:var(--ink);font-family:var(--body)}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--green-2);box-shadow:0 0 0 3px rgba(31,174,95,.18)}
+.fld.toggle{grid-template-columns:auto 1fr;align-items:center;gap:9px}
+.fld.toggle input{width:18px;height:18px;accent-color:var(--green)}
+.fld.toggle span{font-size:12.5px;color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prop-row{display:flex;align-items:center;gap:8px;margin:4px 0 12px;flex-wrap:wrap}
+.tg{width:34px;height:34px;border:1px solid var(--brd);background:var(--glass-2);color:var(--ink);
+  border-radius:8px;cursor:pointer;font-size:14px;display:grid;place-items:center}
+.tg:hover{border-color:var(--green-2)}
+.tg.on{background:linear-gradient(145deg,var(--green-2),var(--green));color:#04120a;border-color:transparent}
+.align-grp{display:flex;gap:4px}
+.color-pick{margin-left:auto;display:grid;place-items:center;width:34px;height:34px;
+  border:1px solid var(--brd);border-radius:8px;overflow:hidden}
+.color-pick input{width:46px;height:46px;border:none;background:none;cursor:pointer;padding:0}
+.hint{font-size:12px;color:var(--muted)}
+
+@media(max-width:920px){ .ed-main{grid-template-columns:1fr} .ed-props{position:static} }

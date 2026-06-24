@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor Template — MDTU As'saamiyah</title>
+<link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <div class="grid-overlay"></div>
+</div>
+
+<header class="site-header">
+  <div class="brand">
+    <img class="brand-logo" src="assets/logo.jpg" alt="Logo Yayasan Assamiyah">
+    <div class="brand-text">
+      <div class="brand-name">Editor Template</div>
+      <div class="brand-sub">Desain dokumen visual · MDTU As'saamiyah</div>
+    </div>
+  </div>
+  <nav class="header-right ed-nav">
+    <a class="btn ghost sm" href="index.html">📄 Generator</a>
+    <span class="pill secure">🔒 Lokal</span>
+  </nav>
+</header>
+
+<div class="ed-toolbar">
+  <button id="addText" class="btn primary sm">➕ Tambah Teks</button>
+  <button id="addField" class="btn primary sm">🏷️ Tambah Placeholder</button>
+  <span class="sep"></span>
+  <label class="btn ghost sm" for="bgUpload">🖼️ Background blangko</label>
+  <input id="bgUpload" type="file" accept="image/*" hidden>
+  <button id="bgClear" class="btn ghost sm">✖ Hapus BG</button>
+  <span class="sep"></span>
+  <label class="tb-field">Ukuran
+    <select id="pageSize">
+      <option value="595.28x841.89">A4 Potret</option>
+      <option value="841.89x595.28">A4 Lanskap</option>
+      <option value="612x792">Letter</option>
+      <option value="935.43x612.28">F4/Folio</option>
+    </select>
+  </label>
+  <label class="tb-field">Zoom
+    <input id="zoom" type="range" min="30" max="120" value="70"><span id="zoomVal">70%</span>
+  </label>
+  <span class="sep"></span>
+  <button id="saveJson" class="btn ghost sm">💾 Simpan (.json)</button>
+  <label class="btn ghost sm" for="loadJson">📂 Buka</label>
+  <input id="loadJson" type="file" accept=".json" hidden>
+  <button id="tryGen" class="btn ghost sm">▶ Uji isi data</button>
+</div>
+
+<main class="ed-main">
+  <!-- KANVAS -->
+  <section class="ed-canvas-wrap">
+    <div class="ed-scroll">
+      <div id="canvas" class="ed-canvas"><img id="canvasBg" class="ed-bg" alt=""></div>
+    </div>
+    <div class="ed-hint">Klik elemen untuk pilih · seret untuk pindah · tombol panah untuk geser halus · Del untuk hapus</div>
+  </section>
+
+  <!-- PROPERTI -->
+  <aside class="ed-props card">
+    <div id="propEmpty" class="prop-empty">
+      <h3>Template</h3>
+      <label class="fld"><span>Nama template</span><input id="tplName" value="Template Baru"></label>
+      <p class="hint">Pilih sebuah elemen di kanvas untuk mengatur teks, font, ukuran, posisi.</p>
+      <div class="prop-stat"><span id="elCount">0</span> elemen</div>
+    </div>
+
+    <div id="propPanel" class="prop-panel hidden">
+      <div class="prop-head">
+        <h3 id="propTitle">Elemen</h3>
+        <button id="delEl" class="btn ghost xs">🗑️ Hapus</button>
+      </div>
+
+      <label class="fld toggle">
+        <input type="checkbox" id="pIsField">
+        <span>Placeholder (isi dari data Excel)</span>
+      </label>
+
+      <label class="fld" id="rowKey"><span>Nama field (mis. Nama_Lengkap)</span>
+        <input id="pKey" placeholder="Nama_Lengkap"></label>
+      <label class="fld" id="rowText"><span>Teks</span>
+        <input id="pText" placeholder="Teks tetap"></label>
+
+      <div class="grid2">
+        <label class="fld"><span>Font</span>
+          <select id="pFont">
+            <option>Arial</option><option>Times New Roman</option>
+            <option>Century</option><option>Courier New</option>
+          </select>
+        </label>
+        <label class="fld"><span>Ukuran (pt)</span>
+          <input id="pSize" type="number" min="6" max="96" step="0.5" value="12"></label>
+      </div>
+
+      <div class="prop-row">
+        <button id="pBold" class="tg" title="Tebal"><b>B</b></button>
+        <button id="pItalic" class="tg" title="Miring"><i>I</i></button>
+        <div class="align-grp">
+          <button class="tg align" data-al="left" title="Kiri">⬅</button>
+          <button class="tg align" data-al="center" title="Tengah">⬌</button>
+          <button class="tg align" data-al="right" title="Kanan">➡</button>
+        </div>
+        <label class="color-pick" title="Warna"><input id="pColor" type="color" value="#000000"></label>
+      </div>
+
+      <div class="grid2">
+        <label class="fld"><span>X (pt)</span><input id="pX" type="number" step="1"></label>
+        <label class="fld"><span>Y / baseline (pt)</span><input id="pY" type="number" step="1"></label>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script src="lib/pizzip.min.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>
