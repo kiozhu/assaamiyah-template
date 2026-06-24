@@ -23,12 +23,9 @@ const MIME = {
   '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 };
 
-// Header keamanan dasar untuk semua respons.
-const SECURITY_HEADERS = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'SAMEORIGIN',
-  'Referrer-Policy': 'no-referrer',
-};
+// Header keamanan disetel di edge oleh nginx (sumber tunggal, hindari dobel).
+// Biarkan kosong di sini; node hanya melayani di balik nginx (127.0.0.1).
+const SECURITY_HEADERS = {};
 
 function deny(res, code, msg) {
   res.writeHead(code, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
