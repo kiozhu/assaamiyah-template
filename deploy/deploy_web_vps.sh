@@ -4,7 +4,7 @@
 set -e
 
 REPO="https://github.com/kiozhu/assaamiyah-template.git"
-DIR="/var/www/assaamiyah"
+DIR="/home/ubuntu/assaamiyah"
 
 echo ">> Pastikan nginx & git terpasang"
 apt-get update -y

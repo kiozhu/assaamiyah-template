@@ -24,3 +24,4 @@ Thumbs.db
 # font besar (taruh manual di VPS bila perlu)
 web/assets/fonts/*.ttf
 web/assets/fonts/*.otf
+server.js.bak
