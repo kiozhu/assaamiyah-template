@@ -1,0 +1,23 @@
+# rahasia & runtime
+.env
+data/work/
+data/*.xlsx
+data/*.docx
+data/*.pdf
+web/*.xlsx
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# os/editor
+.DS_Store
+Thumbs.db
+*.tmp
+~$*
+
+# font besar (taruh manual di VPS bila perlu)
+web/assets/fonts/*.ttf
+web/assets/fonts/*.otf

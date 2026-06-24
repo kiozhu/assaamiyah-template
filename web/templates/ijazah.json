@@ -1,0 +1,159 @@
+{
+  "page": {
+    "w": 595.28,
+    "h": 841.89,
+    "unit": "pt"
+  },
+  "fields": [
+    {
+      "key": "Nomor",
+      "text": null,
+      "x": 214.5,
+      "baseline": 329.0,
+      "size": 12,
+      "font": "Arial",
+      "bold": true,
+      "isField": true
+    },
+    {
+      "key": "Nama_Lengkap",
+      "text": null,
+      "x": 260.9,
+      "baseline": 400.6,
+      "size": 14,
+      "font": "Arial",
+      "bold": true,
+      "isField": true
+    },
+    {
+      "key": "Nomor_Induk_Santri",
+      "text": null,
+      "x": 260.9,
+      "baseline": 419.9,
+      "size": 14,
+      "font": "Arial",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "TTL",
+      "text": null,
+      "x": 260.9,
+      "baseline": 437.0,
+      "size": 14,
+      "font": "Arial",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "Madrasah1",
+      "text": null,
+      "x": 339.9,
+      "baseline": 355.8,
+      "size": 16,
+      "font": "Century",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "Nama_Orang_Tua",
+      "text": null,
+      "x": 260.9,
+      "baseline": 456.1,
+      "size": 14,
+      "font": "Arial",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "Desa",
+      "text": null,
+      "x": 118.2,
+      "baseline": 375.6,
+      "size": 12,
+      "font": "Century",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "Desa_Kecamatan",
+      "text": null,
+      "x": 118.2,
+      "baseline": 545.8,
+      "size": 12,
+      "font": "Century",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "Madrasah2",
+      "text": null,
+      "x": 386.4,
+      "baseline": 528.2,
+      "size": 16,
+      "font": "Century",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": null,
+      "text": "Kabupaten Indramayu",
+      "x": 118.2,
+      "baseline": 564.7,
+      "size": 12,
+      "font": "Century",
+      "bold": false,
+      "isField": false
+    },
+    {
+      "key": "Nomor_Statistik",
+      "text": null,
+      "x": 207.5,
+      "baseline": 581.6,
+      "size": 12,
+      "font": "Century",
+      "bold": true,
+      "isField": true
+    },
+    {
+      "key": "Tanggal_Masehi",
+      "text": null,
+      "x": 354.5,
+      "baseline": 630.2,
+      "size": 12,
+      "font": "Times New Roman",
+      "bold": true,
+      "isField": true
+    },
+    {
+      "key": "Tanggal_Hijriah",
+      "text": null,
+      "x": 381.5,
+      "baseline": 654.7,
+      "size": 12,
+      "font": "Times New Roman",
+      "bold": true,
+      "isField": true
+    },
+    {
+      "key": "Madrasah3",
+      "text": null,
+      "x": 331.8,
+      "baseline": 678.9,
+      "size": 12,
+      "font": "Century",
+      "bold": false,
+      "isField": true
+    },
+    {
+      "key": "Nama_Kepala",
+      "text": null,
+      "x": 339.1,
+      "baseline": 738.2,
+      "size": 12,
+      "font": "Century",
+      "bold": false,
+      "isField": true
+    }
+  ]
+}

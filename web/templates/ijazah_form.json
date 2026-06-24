@@ -1,0 +1,83 @@
+{
+  "label": "📜 Ijazah",
+  "sheet": "IJAZAH",
+  "fields": [
+    {
+      "key": "Nomor",
+      "label": "Nomor ijazah",
+      "ask": true
+    },
+    {
+      "key": "Nama_Lengkap",
+      "label": "Nama lengkap santri",
+      "ask": true
+    },
+    {
+      "key": "Nomor_Induk_Santri",
+      "label": "Nomor Induk Santri",
+      "ask": true
+    },
+    {
+      "key": "TTL",
+      "label": "Tempat, tanggal lahir",
+      "ask": true
+    },
+    {
+      "key": "Nama_Orang_Tua",
+      "label": "Nama orang tua / wali",
+      "ask": true
+    },
+    {
+      "key": "Tanggal_Masehi",
+      "label": "Tanggal Masehi (mis. Indramayu, 06 Juni 2026)",
+      "ask": true
+    },
+    {
+      "key": "Tanggal_Hijriah",
+      "label": "Tanggal Hijriah (mis. 20 Dzulhijjah 1447)",
+      "ask": true
+    },
+    {
+      "key": "Madrasah1",
+      "label": "Nama Madrasah",
+      "ask": false,
+      "default": "As'saamiyah"
+    },
+    {
+      "key": "Madrasah2",
+      "label": "Nama Madrasah",
+      "ask": false,
+      "default": "As'saamiyah"
+    },
+    {
+      "key": "Madrasah3",
+      "label": "Nama Madrasah (tanda tangan)",
+      "ask": false,
+      "default": "MDTU AS'SAMIYAH"
+    },
+    {
+      "key": "Desa",
+      "label": "Desa",
+      "ask": false,
+      "default": "Desa Pabean Udik"
+    },
+    {
+      "key": "Desa_Kecamatan",
+      "label": "Desa & Kecamatan",
+      "ask": false,
+      "default": "Desa Pabean Udik Kecamatan Indramayu"
+    },
+    {
+      "key": "Nomor_Statistik",
+      "label": "Nomor Statistik",
+      "ask": false,
+      "default": "321321321"
+    },
+    {
+      "key": "Nama_Kepala",
+      "label": "Nama Kepala Madrasah",
+      "ask": false,
+      "default": "ACING MUNASIR"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Ijazah — Lokal & Aman</title>
+<link rel="stylesheet" href="styles.css">
+<!-- Library di-load dari CDN. Tidak ada data yang dikirim ke mana pun. -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.6/dist/pizzip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.6/dist/pizzip-utils.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.44.0/build/docxtemplater.js"></script>
+</head>
+<body>
+<header>
+  <h1>📜 Generator Ijazah</h1>
+  <span class="badge" title="Semua proses di browser. Tidak ada data yang dikirim ke server.">🔒 Data lokal — tidak dikirim ke server</span>
+</header>
+
+<main>
+  <!-- ============ PANEL KIRI: INPUT ============ -->
+  <section class="panel input">
+    <div class="tabs">
+      <button class="tab active" data-tab="excel">📥 Upload Excel</button>
+      <button class="tab" data-tab="manual">✍️ Input Manual</button>
+    </div>
+
+    <div class="tabpane" id="tab-excel">
+      <p class="hint">Pilih file <b>.xlsx</b>. Header kolom harus sesuai format
+        (lihat tombol <i>Unduh contoh Excel</i>).</p>
+      <input type="file" id="excelFile" accept=".xlsx,.xlsm">
+      <button id="sampleXlsx" class="ghost small">⬇️ Unduh contoh Excel</button>
+      <div id="excelStatus" class="status"></div>
+    </div>
+
+    <div class="tabpane hidden" id="tab-manual">
+      <p class="hint">Isi data lalu <b>Tambah</b>. Field tetap (nama madrasah dll)
+        tersimpan di browser supaya tidak ketik ulang.</p>
+      <form id="manualForm"></form>
+      <button id="addRecord" class="primary small">➕ Tambah ke daftar</button>
+    </div>
+
+    <div class="records">
+      <div class="records-head">
+        <b>Daftar data</b>
+        <span id="recCount" class="muted">0 data</span>
+        <button id="clearRecords" class="ghost small">🗑️ Kosongkan</button>
+      </div>
+      <ol id="recordList"></ol>
+    </div>
+
+    <details class="adv">
+      <summary>Pengaturan lanjutan</summary>
+      <label class="row">
+        <span>Background blangko (opsional, untuk preview WYSIWYG)</span>
+        <input type="file" id="bgImage" accept="image/*">
+      </label>
+      <p class="hint">Unggah hasil scan blangko kosong (border hijau) — hanya untuk
+        tampilan preview, tidak ikut ke PDF cetak.</p>
+    </details>
+  </section>
+
+  <!-- ============ PANEL KANAN: PREVIEW ============ -->
+  <section class="panel preview">
+    <div class="preview-bar">
+      <button id="prev" class="ghost">◀</button>
+      <span id="navLabel" class="muted">— / —</span>
+      <button id="next" class="ghost">▶</button>
+      <span class="spacer"></span>
+      <button id="dlPdfOne" class="primary">⬇️ PDF (ini)</button>
+      <button id="dlPdfAll" class="primary">⬇️ PDF (semua)</button>
+      <button id="dlDocxOne" class="ghost">⬇️ Word (ini)</button>
+      <button id="dlDocxAll" class="ghost">⬇️ Word (semua)</button>
+    </div>
+    <div class="stage">
+      <div id="page" class="a4"></div>
+    </div>
+    <p class="hint center">Preview ini = teks yang akan tercetak di atas blangko.
+      Posisi/ukuran/bold sesuai format asli.</p>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

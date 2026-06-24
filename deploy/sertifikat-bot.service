@@ -1,0 +1,16 @@
+[Unit]
+Description=Sertifikat Generator Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sertifikat-bot
+ExecStart=/opt/sertifikat-bot/venv/bin/python -m app.bot
+Restart=always
+RestartSec=5
+# Hemat resource & headless LibreOffice aman
+Environment=HOME=/opt/sertifikat-bot
+
+[Install]
+WantedBy=multi-user.target
