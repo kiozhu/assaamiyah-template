@@ -1,0 +1,134 @@
+{
+  "label": "SKHU",
+  "sheet": "SKHU",
+  "fields": [
+    {
+      "key": "Nama",
+      "label": "Nama",
+      "ask": true
+    },
+    {
+      "key": "Nomor_Induk_Siswa",
+      "label": "Nomor Induk Siswa",
+      "ask": true
+    },
+    {
+      "key": "Nomor_Peserta",
+      "label": "Nomor Peserta",
+      "ask": true
+    },
+    {
+      "key": "Tempat_Tanggal_Lahir",
+      "label": "Tempat, Tanggal Lahir",
+      "ask": true
+    },
+    {
+      "key": "Jenis_Kelamin",
+      "label": "Jenis Kelamin",
+      "ask": true
+    },
+    {
+      "key": "Anak_Dari",
+      "label": "Anak dari",
+      "ask": true
+    },
+    {
+      "key": "Asal_MDTU",
+      "label": "Asal MDTU",
+      "ask": false,
+      "default": "As'saamiyah"
+    },
+    {
+      "key": "Nomor_Statistik",
+      "label": "Nomor Statistik",
+      "ask": false,
+      "default": ""
+    },
+    {
+      "key": "Kecamatan",
+      "label": "Kecamatan",
+      "ask": false,
+      "default": "Indramayu"
+    },
+    {
+      "key": "Quran_Angka",
+      "label": "Qur'an — Angka",
+      "ask": true
+    },
+    {
+      "key": "Quran_Huruf",
+      "label": "Qur'an — Huruf",
+      "ask": true
+    },
+    {
+      "key": "Hadits_Angka",
+      "label": "Hadits — Angka",
+      "ask": true
+    },
+    {
+      "key": "Hadits_Huruf",
+      "label": "Hadits — Huruf",
+      "ask": true
+    },
+    {
+      "key": "Aqidah_Angka",
+      "label": "Aqidah — Angka",
+      "ask": true
+    },
+    {
+      "key": "Aqidah_Huruf",
+      "label": "Aqidah — Huruf",
+      "ask": true
+    },
+    {
+      "key": "Akhlaq_Angka",
+      "label": "Akhlaq — Angka",
+      "ask": true
+    },
+    {
+      "key": "Akhlaq_Huruf",
+      "label": "Akhlaq — Huruf",
+      "ask": true
+    },
+    {
+      "key": "Fiqih_Angka",
+      "label": "Fiqih — Angka",
+      "ask": true
+    },
+    {
+      "key": "Fiqih_Huruf",
+      "label": "Fiqih — Huruf",
+      "ask": true
+    },
+    {
+      "key": "TarikhIslam_Angka",
+      "label": "Tarikh Islam — Angka",
+      "ask": true
+    },
+    {
+      "key": "TarikhIslam_Huruf",
+      "label": "Tarikh Islam — Huruf",
+      "ask": true
+    },
+    {
+      "key": "BahasaArab_Angka",
+      "label": "Bahasa Arab — Angka",
+      "ask": true
+    },
+    {
+      "key": "BahasaArab_Huruf",
+      "label": "Bahasa Arab — Huruf",
+      "ask": true
+    },
+    {
+      "key": "Jumlah_Angka",
+      "label": "JUMLAH — Angka",
+      "ask": true
+    },
+    {
+      "key": "Jumlah_Huruf",
+      "label": "JUMLAH — Huruf",
+      "ask": true
+    }
+  ]
+}
