@@ -9,6 +9,9 @@ Aplikasi web statis untuk membuat Ijazah dari Excel / input manual, dengan
 - Excel yang diupload & data yang diketik **tidak pernah di-POST** ke server.
 - Parsing Excel, isi template, render PDF/Word — semua via JavaScript di browser.
 - Tidak ada database, tidak ada log data, tidak ada penyimpanan server.
+- **Semua library disimpan lokal** (`lib/`) — tidak ambil dari internet/CDN.
+- **Content-Security-Policy** mengunci halaman: browser hanya boleh menghubungi
+  server ini sendiri (`connect-src 'self'`) → data **mustahil** terkirim ke luar.
 - Field tetap (nama madrasah, kepala) opsional disimpan di `localStorage`
   browser guru sendiri (bukan server) supaya tak ketik ulang.
 
@@ -17,6 +20,7 @@ Aplikasi web statis untuk membuat Ijazah dari Excel / input manual, dengan
 index.html        tampilan
 app.js            semua logika (parse Excel, preview, PDF, Word)
 styles.css        gaya
+lib/              library lokal (SheetJS, pdf-lib, fontkit, PizZip, docxtemplater)
 templates/
   ijazah.json       peta koordinat (posisi/font/ukuran/bold) — sumber preview & PDF
   ijazah_form.json  label & default untuk input manual
