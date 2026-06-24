@@ -127,10 +127,18 @@
     </div>
 
     <div id="editPanel" class="edit-panel hidden">
-      <span id="epName" class="ep-name">Pilih teks di pratinjau…</span>
+      <span class="ep-group">
+        <button id="epAddField" class="btn ghost xs" title="Tambah placeholder (isi dari Excel)">➕ Placeholder</button>
+        <button id="epAddText" class="btn ghost xs" title="Tambah teks tetap">➕ Teks</button>
+        <button id="epDel" class="btn ghost xs" title="Hapus terpilih">🗑️ Hapus</button>
+      </span>
+      <span id="epName" class="ep-name">Pilih / tambah teks…</span>
       <span class="ep-group">
         <select id="epFont" title="Font">
-          <option>Arial</option><option>Times New Roman</option><option>Century</option><option>Courier New</option>
+          <option>Arial</option><option>Calibri</option><option>Verdana</option><option>Tahoma</option>
+          <option>Trebuchet MS</option><option>Times New Roman</option><option>Georgia</option>
+          <option>Cambria</option><option>Garamond</option><option>Book Antiqua</option>
+          <option>Century</option><option>Courier New</option><option>Consolas</option><option>Comic Sans MS</option>
         </select>
         <input id="epSize" type="number" min="6" max="96" step="0.5" title="Ukuran (pt)">
         <button id="epBold" class="tgmini" title="Tebal"><b>B</b></button>

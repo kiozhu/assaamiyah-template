@@ -3,9 +3,19 @@ const PT = 96 / 72;
 const ASC = 0.8;                       // perkiraan ascent (baseline = top + size*ASC)
 const FONT_CSS = {
   'Arial': 'Arial, Helvetica, sans-serif',
+  'Calibri': "Calibri, 'Segoe UI', sans-serif",
+  'Verdana': 'Verdana, Geneva, sans-serif',
+  'Tahoma': 'Tahoma, Geneva, sans-serif',
+  'Trebuchet MS': "'Trebuchet MS', sans-serif",
   'Times New Roman': "'Times New Roman', Times, serif",
+  'Georgia': 'Georgia, serif',
+  'Cambria': 'Cambria, Georgia, serif',
+  'Garamond': "Garamond, 'Times New Roman', serif",
+  'Book Antiqua': "'Book Antiqua', Palatino, serif",
   'Century': "'Century', 'Century Schoolbook', Georgia, serif",
   'Courier New': "'Courier New', monospace",
+  'Consolas': 'Consolas, monospace',
+  'Comic Sans MS': "'Comic Sans MS', cursive",
 };
 const DRAFT_KEY = 'editor_draft';
 

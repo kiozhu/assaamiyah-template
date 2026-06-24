@@ -2,9 +2,25 @@
 const PT = 96 / 72;
 const CSS_FONT = {
   'Arial': 'Arial, Helvetica, sans-serif',
+  'Calibri': "Calibri, 'Segoe UI', sans-serif",
+  'Verdana': 'Verdana, Geneva, sans-serif',
+  'Tahoma': 'Tahoma, Geneva, sans-serif',
+  'Trebuchet MS': "'Trebuchet MS', sans-serif",
   'Times New Roman': "'Times New Roman', Times, serif",
+  'Georgia': 'Georgia, serif',
+  'Cambria': 'Cambria, Georgia, serif',
+  'Garamond': "Garamond, 'Times New Roman', serif",
+  'Book Antiqua': "'Book Antiqua', Palatino, serif",
   'Century': "'Century', 'Century Schoolbook', Georgia, serif",
   'Courier New': "'Courier New', monospace",
+  'Consolas': 'Consolas, monospace',
+  'Comic Sans MS': "'Comic Sans MS', cursive",
+};
+// kategori untuk fallback font PDF (standar pdf-lib)
+const FONT_CAT = {
+  'Arial': 'sans', 'Calibri': 'sans', 'Verdana': 'sans', 'Tahoma': 'sans', 'Trebuchet MS': 'sans', 'Comic Sans MS': 'sans',
+  'Times New Roman': 'serif', 'Georgia': 'serif', 'Cambria': 'serif', 'Garamond': 'serif', 'Book Antiqua': 'serif', 'Century': 'serif',
+  'Courier New': 'mono', 'Consolas': 'mono',
 };
 
 let MANIFEST = [];
@@ -108,6 +124,9 @@ function bindStatic() {
   $('#editToggle').onclick = () => setEditMode(!editMode);
   $('#saveDefault').onclick = saveDefaultTpl;
   $('#resetDefault').onclick = resetDefaultTpl;
+  $('#epAddField').onclick = () => addElementFront(true);
+  $('#epAddText').onclick = () => addElementFront(false);
+  $('#epDel').onclick = deleteSelField;
   $('#epFont').onchange = e => updateSel('font', e.target.value);
   $('#epSize').oninput = e => updateSel('size', +e.target.value || 12);
   $('#epColor').oninput = e => updateSel('color', e.target.value);
@@ -169,16 +188,19 @@ async function onExcel(e) {
 /* ---------------- mode Manual ---------------- */
 function buildManualForm() {
   const saved = JSON.parse(localStorage.getItem('const_' + TKEY) || '{}');
+  const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
+  const keys = uniqueFieldKeys();              // diturunkan dari placeholder terkini di coord
   const f = $('#manualForm'); f.innerHTML = '';
-  (form.fields || []).forEach(fld => {
+  keys.forEach(key => {
+    const m = meta[key] || { key, label: key.replace(/_/g, ' '), ask: true };
     const wrap = document.createElement('div');
-    wrap.className = 'fld' + (fld.ask ? '' : ' const');
-    const val = fld.ask ? '' : (saved[fld.key] ?? fld.default ?? '');
-    wrap.innerHTML = `<label>${fld.label}${fld.ask ? '' : ' (tetap)'}</label>
-      <input data-key="${fld.key}" data-ask="${fld.ask ? 1 : 0}" value="${escapeAttr(val)}">`;
+    wrap.className = 'fld' + (m.ask ? '' : ' const');
+    const val = m.ask ? '' : (saved[key] ?? m.default ?? '');
+    wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}</label>
+      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="${escapeAttr(val)}">`;
     f.appendChild(wrap);
   });
-  $('#addRecord').style.display = (form.fields || []).length ? '' : 'none';
+  $('#addRecord').style.display = keys.length ? '' : 'none';
 }
 function addManual() {
   const o = {}, consts = {};
@@ -268,7 +290,7 @@ function selectField(idx) {
   const f = coord.fields[idx];
   $('#epName').textContent = f ? (f.isField ? '«' + f.key + '»' : '“' + (f.text || '') + '”') : 'Pilih teks di pratinjau…';
   const dis = !f;
-  ['epFont', 'epSize', 'epBold', 'epItalic', 'epColor', 'epX', 'epY'].forEach(id => $('#' + id).disabled = dis);
+  ['epFont', 'epSize', 'epBold', 'epItalic', 'epColor', 'epX', 'epY', 'epDel'].forEach(id => $('#' + id).disabled = dis);
   document.querySelectorAll('.epAl').forEach(b => b.disabled = dis);
   if (!f) return;
   $('#epFont').value = f.font || 'Arial';
@@ -317,6 +339,29 @@ async function resetDefaultTpl() {
   await loadTemplate(TKEY, true);
   if (editMode) setEditMode(true);
 }
+function addElementFront(isField) {
+  let key = '', text = '';
+  if (isField) {
+    key = (prompt('Nama placeholder (mis. Nama_Lengkap):', '') || '').trim();
+    if (!key) return;
+  } else {
+    text = (prompt('Teks tetap:', '') || '').trim();
+    if (!text) return;
+  }
+  coord.fields.push({
+    key, text, x: Math.round(coord.page.w * 0.28), baseline: Math.round(coord.page.h * 0.18),
+    size: 12, font: 'Times New Roman', bold: false, italic: false, color: '#000000', align: 'left', isField,
+  });
+  buildManualForm(); renderPreview();
+  selectField(coord.fields.length - 1);
+}
+function deleteSelField() {
+  if (selIdx < 0) return;
+  const f = coord.fields[selIdx];
+  if (!confirm('Hapus ' + (f.isField ? 'placeholder «' + f.key + '»' : 'teks ini') + '?')) return;
+  coord.fields.splice(selIdx, 1); selIdx = -1;
+  buildManualForm(); renderPreview(); selectField(-1);
+}
 function onBg(e) {
   const file = e.target.files[0]; if (!file) return;
   const r = new FileReader(); r.onload = () => { bgUrl = r.result; renderPreview(); }; r.readAsDataURL(file);
@@ -324,20 +369,18 @@ function onBg(e) {
 
 /* ---------------- PDF ---------------- */
 async function buildFonts(pdf) {
-  pdf.registerFontkit(window.fontkit);
   const S = PDFLib.StandardFonts;
-  const tryEmbed = async (url) => {
-    try { const r = await fetch(url); if (!r.ok) return null; return await pdf.embedFont(await r.arrayBuffer(), { subset: true }); }
-    catch { return null; }
+  const E = (f) => pdf.embedFont(f);
+  // tiap kategori: [regular, bold, italic, boldItalic]
+  return {
+    sans: [await E(S.Helvetica), await E(S.HelveticaBold), await E(S.HelveticaOblique), await E(S.HelveticaBoldOblique)],
+    serif: [await E(S.TimesRoman), await E(S.TimesRomanBold), await E(S.TimesRomanItalic), await E(S.TimesRomanBoldItalic)],
+    mono: [await E(S.Courier), await E(S.CourierBold), await E(S.CourierOblique), await E(S.CourierBoldOblique)],
   };
-  const aR = await tryEmbed('assets/fonts/arial.ttf') || await pdf.embedFont(S.Helvetica);
-  const aB = await tryEmbed('assets/fonts/arialbd.ttf') || await pdf.embedFont(S.HelveticaBold);
-  const tR = await tryEmbed('assets/fonts/times.ttf') || await pdf.embedFont(S.TimesRoman);
-  const tB = await tryEmbed('assets/fonts/timesbd.ttf') || await pdf.embedFont(S.TimesRomanBold);
-  const cR = await tryEmbed('assets/fonts/century.ttf') || tR;
-  const cB = await tryEmbed('assets/fonts/centurybd.ttf') || tB;
-  const courR = await pdf.embedFont(S.Courier), courB = await pdf.embedFont(S.CourierBold);
-  return { 'Arial': [aR, aB], 'Times New Roman': [tR, tB], 'Century': [cR, cB], 'Courier New': [courR, courB] };
+}
+function pickPdfFont(fonts, name, bold, italic) {
+  const arr = fonts[FONT_CAT[name] || 'sans'];
+  return arr[(bold ? 1 : 0) + (italic ? 2 : 0)];
 }
 function hexRgb(hex) {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return PDFLib.rgb(0, 0, 0);
@@ -355,8 +398,7 @@ async function makePdf(all) {
       for (const fld of coord.fields) {
         const txt = valueFor(fld, rec) || '';
         if (txt === '') continue;
-        const fam = fonts[fld.font] || fonts['Arial'];
-        const font = fld.bold ? fam[1] : fam[0];
+        const font = pickPdfFont(fonts, fld.font, fld.bold, fld.italic);
         let x = fld.x;
         if (fld.align === 'center' || fld.align === 'right') {
           const w = font.widthOfTextAtSize(String(txt), fld.size);
