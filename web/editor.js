@@ -13,6 +13,8 @@ let tpl = null;        // {name, page:{w,h,unit}, background, elements:[]}
 let sel = null;        // id elemen terpilih
 let scale = 0.7;
 let previewFill = false;
+let dragEnabled = false;   // default terkunci agar tidak bergeser tak sengaja
+let bgHidden = false;
 let uid = 1;
 
 const $ = (s) => document.querySelector(s);
@@ -68,8 +70,8 @@ function applyPageSize() {
   c.style.height = (tpl.page.h * PT) + 'px';
   c.style.transform = `scale(${scale})`;
   const bg = $('#canvasBg');
-  if (tpl.background) { bg.src = tpl.background; bg.style.display = 'block'; }
-  else { bg.style.display = 'none'; bg.removeAttribute('src'); }
+  if (tpl.background && !bgHidden) { bg.src = tpl.background; bg.style.display = 'block'; }
+  else { bg.style.display = 'none'; if (!tpl.background) bg.removeAttribute('src'); }
 }
 function elText(e) {
   if (!e.isField) return e.text || '';
@@ -144,6 +146,7 @@ let drag = null;
 function startDrag(ev) {
   const id = ev.currentTarget.dataset.id;
   select(id);
+  if (!dragEnabled) return;             // terkunci: hanya seleksi, tidak geser
   const e = elById(id);
   drag = { id, sx: ev.clientX, sy: ev.clientY, ox: e.x, oy: e.baseline };
   ev.currentTarget.classList.add('dragging');
@@ -196,6 +199,22 @@ function bindUI() {
 
   $('#bgUpload').onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { tpl.background = r.result; applyPageSize(); saveDraft(); }; r.readAsDataURL(f); };
   $('#bgClear').onclick = () => { tpl.background = null; applyPageSize(); saveDraft(); };
+
+  $('#dragToggle').onclick = () => {
+    dragEnabled = !dragEnabled;
+    const b = $('#dragToggle');
+    b.textContent = dragEnabled ? '✋ Geser: ON' : '🔒 Geser: OFF';
+    b.classList.toggle('on', dragEnabled);
+    canvas().classList.toggle('locked', !dragEnabled);
+  };
+  $('#hideBg').onclick = () => {
+    bgHidden = !bgHidden;
+    const b = $('#hideBg');
+    b.textContent = bgHidden ? '👁️ Tampilkan BG' : '👁️ Sembunyikan BG';
+    b.classList.toggle('on', bgHidden);
+    applyPageSize();
+  };
+  canvas().classList.add('locked');     // mulai dalam keadaan terkunci
 
   $('#saveJson').onclick = saveJson;
   $('#loadJson').onchange = loadJson;

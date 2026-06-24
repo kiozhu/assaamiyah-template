@@ -13,6 +13,7 @@ let docxBuf = null;    // arraybuffer template .docx (lazy)
 let records = [];      // data
 let cur = 0;
 let bgUrl = null;
+let showBg = true;
 
 const $ = (s) => document.querySelector(s);
 const reqKeys = () => coord.fields.filter(f => f.isField).map(f => f.key);
@@ -26,6 +27,7 @@ async function init() {
     alert('Gagal memuat template. Buka lewat server (bukan file://). Lihat README_web.md.');
     return;
   }
+  if (coord.background) bgUrl = coord.background;   // blangko default dari template
   buildManualForm();
   bindUI();
   renderPreview();
@@ -47,6 +49,7 @@ function bindUI() {
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
   $('#bgImage').onchange = onBg;
+  $('#showBg').onchange = (e) => { showBg = e.target.checked; renderPreview(); };
   $('#dlPdfOne').onclick = () => makePdf(false);
   $('#dlPdfAll').onclick = () => makePdf(true);
   $('#dlDocxOne').onclick = () => makeDocx(false);
@@ -136,7 +139,7 @@ function valueFor(fld, rec) {
 }
 function renderPreview() {
   const page = $('#page'); page.innerHTML = '';
-  if (bgUrl) { const img = document.createElement('img'); img.className = 'bg'; img.src = bgUrl; page.appendChild(img); }
+  if (bgUrl && showBg) { const img = document.createElement('img'); img.className = 'bg'; img.src = bgUrl; page.appendChild(img); }
   const rec = records[cur];
   coord.fields.forEach(fld => {
     const div = document.createElement('div');

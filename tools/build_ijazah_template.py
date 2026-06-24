@@ -97,7 +97,8 @@ for name, x0, oy, size, pf, bold, isf in F:
         'x': x0, 'baseline': oy, 'size': size,
         'font': FN.get(pf, pf), 'bold': bool(bold), 'isField': bool(isf),
     })
-meta = {'page': {'w': 595.28, 'h': 841.89, 'unit': 'pt'}, 'fields': fields}
+meta = {'name': 'Ijazah', 'page': {'w': 595.28, 'h': 841.89, 'unit': 'pt'},
+        'background': 'assets/blangko/ijazah.jpg', 'fields': fields}
 for out_json in (
     os.path.join(os.path.dirname(__file__), '..', 'web', 'templates', 'ijazah.json'),
     os.path.join(os.path.dirname(__file__), '..', 'templates', 'ijazah.json'),

@@ -86,12 +86,16 @@
 
     <details class="adv">
       <summary>⚙️ Pengaturan lanjutan</summary>
+      <label class="row" style="display:flex;align-items:center;gap:9px">
+        <input type="checkbox" id="showBg" checked style="width:18px;height:18px;accent-color:var(--green)">
+        <span>Tampilkan blangko di pratinjau</span>
+      </label>
       <label class="row">
-        <span>Background blangko (opsional — untuk pratinjau WYSIWYG)</span>
+        <span>Ganti background blangko (opsional)</span>
         <input type="file" id="bgImage" accept="image/*">
       </label>
-      <p class="hint">Unggah scan blangko kosong (border hijau) agar pratinjau seperti aslinya.
-        Tidak ikut tercetak ke PDF.</p>
+      <p class="hint">Blangko hanya untuk pratinjau (WYSIWYG). <b>Tidak ikut tercetak</b> —
+        PDF berisi teks saja untuk dicetak di atas blangko asli.</p>
     </details>
   </section>
 

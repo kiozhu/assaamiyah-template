@@ -202,3 +202,7 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
   *{animation:none!important}
   .reveal{opacity:1;transform:none}
 }
+/* Saat dicetak dari browser: background blangko TIDAK ikut tercetak */
+@media print{
+  .a4 .bg,.ed-bg{display:none!important}
+}
