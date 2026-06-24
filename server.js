@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 8080;
-const ROOT = '/home/ubuntu/assaamiyah/web';
+// Pin ROOT ke path kanonik (resolve symlink) agar perbandingan path akurat.
+const ROOT = fs.realpathSync('/home/ubuntu/assaamiyah/web');
 
 const MIME = {
   '.html': 'text/html',
@@ -13,6 +14,8 @@ const MIME = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.ttf': 'font/ttf',
@@ -20,44 +23,85 @@ const MIME = {
   '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 };
 
+// Header keamanan dasar untuk semua respons.
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'Referrer-Policy': 'no-referrer',
+};
+
+function deny(res, code, msg) {
+  res.writeHead(code, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
+  res.end(msg);
+}
+
+// True jika ada segmen path yang diawali titik (dotfile/dotdir: .git, .env, ...).
+function hasDotSegment(p) {
+  return p.split(path.sep).some((seg) => seg.startsWith('.') && seg !== '..' && seg !== '.');
+}
+
+function serveIndexFallback(res) {
+  const indexPath = path.join(ROOT, 'index.html');
+  fs.stat(indexPath, (err, st) => {
+    if (err || !st.isFile()) return deny(res, 404, 'Not Found');
+    res.writeHead(200, { 'Content-Type': 'text/html', ...SECURITY_HEADERS });
+    fs.createReadStream(indexPath).pipe(res);
+  });
+}
+
 const server = http.createServer((req, res) => {
-  // Decode & buang query string DULU, sebelum join/normalize,
-  // supaya '..' ber-encode (%2e%2e) tidak bisa lolos pengecekan.
+  // 1) Hanya izinkan metode baca.
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    res.writeHead(405, { Allow: 'GET, HEAD', ...SECURITY_HEADERS });
+    return res.end('Method Not Allowed');
+  }
+
+  // 2) Decode & buang query string DULU (sebelum join/normalize) supaya
+  //    '..' ber-encode (%2e%2e / %2f) tidak bisa lolos pengecekan.
   let urlPath;
   try {
     urlPath = decodeURIComponent(req.url.split('?')[0]);
   } catch (e) {
-    res.writeHead(400);
-    return res.end('Bad Request');
+    return deny(res, 400, 'Bad Request');
   }
   if (urlPath === '/') urlPath = '/index.html';
 
+  // 3) Susun path absolut lalu normalize.
   const filePath = path.normalize(path.join(ROOT, urlPath));
 
-  // Harus tepat di dalam ROOT (cegah path traversal keluar web root).
+  // 4) Wajib tetap di dalam ROOT (cegah path traversal keluar web root).
   if (filePath !== ROOT && !filePath.startsWith(ROOT + path.sep)) {
-    res.writeHead(403);
-    return res.end('Forbidden');
+    return deny(res, 403, 'Forbidden');
+  }
+
+  // 5) Tolak akses ke dotfile/dotdir (mis. .git, .env, .htaccess).
+  if (hasDotSegment(filePath)) {
+    return deny(res, 403, 'Forbidden');
   }
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
-      const indexPath = path.join(ROOT, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        return fs.createReadStream(indexPath).pipe(res);
-      }
-      res.writeHead(404);
-      return res.end('Not Found');
+      // Fallback SPA: kembalikan index.html untuk path yang tak ada.
+      return serveIndexFallback(res);
     }
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME[ext] || 'application/octet-stream';
-    res.writeHead(200, { 'Content-Type': contentType });
-    fs.createReadStream(filePath).pipe(res);
+    // 6) Resolve symlink & pastikan target nyata MASIH di dalam ROOT
+    //    (cegah file symlink di web/ yang menunjuk keluar).
+    fs.realpath(filePath, (rerr, real) => {
+      if (rerr) return deny(res, 404, 'Not Found');
+      if (real !== ROOT && !real.startsWith(ROOT + path.sep)) {
+        return deny(res, 403, 'Forbidden');
+      }
+
+      const ext = path.extname(real).toLowerCase();
+      const contentType = MIME[ext] || 'application/octet-stream';
+      res.writeHead(200, { 'Content-Type': contentType, ...SECURITY_HEADERS });
+      if (req.method === 'HEAD') return res.end();
+      fs.createReadStream(real).pipe(res);
+    });
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Assaamiyah web running on port ${PORT}`);
+server.listen(PORT, '127.0.0.1', () => {
+  console.log(`Assaamiyah web running on 127.0.0.1:${PORT}`);
 });
