@@ -116,10 +116,31 @@
     </div>
 
     <div class="toolbar">
+      <button id="editToggle" class="btn ghost">✏️ Aktifkan Edit</button>
+      <button id="saveDefault" class="btn ghost hidden">💾 Simpan Default</button>
+      <button id="resetDefault" class="btn ghost hidden">↩️ Reset Default</button>
+      <span style="flex:1"></span>
       <button id="dlPdfOne" class="btn primary">⬇️ PDF (ini)</button>
       <button id="dlPdfAll" class="btn primary">⬇️ PDF (semua)</button>
       <button id="dlDocxOne" class="btn ghost">⬇️ Word (ini)</button>
       <button id="dlDocxAll" class="btn ghost">⬇️ Word (semua)</button>
+    </div>
+
+    <div id="editPanel" class="edit-panel hidden">
+      <span id="epName" class="ep-name">Pilih teks di pratinjau…</span>
+      <span class="ep-group">
+        <select id="epFont" title="Font">
+          <option>Arial</option><option>Times New Roman</option><option>Century</option><option>Courier New</option>
+        </select>
+        <input id="epSize" type="number" min="6" max="96" step="0.5" title="Ukuran (pt)">
+        <button id="epBold" class="tgmini" title="Tebal"><b>B</b></button>
+        <button id="epItalic" class="tgmini" title="Miring"><i>I</i></button>
+        <button class="tgmini epAl" data-al="left" title="Kiri">⬅</button>
+        <button class="tgmini epAl" data-al="center" title="Tengah">⬌</button>
+        <button class="tgmini epAl" data-al="right" title="Kanan">➡</button>
+        <input id="epColor" type="color" title="Warna">
+      </span>
+      <span class="ep-pos">x<input id="epX" type="number" step="1"> y<input id="epY" type="number" step="1"></span>
     </div>
 
     <div class="stage">

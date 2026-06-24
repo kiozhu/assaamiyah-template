@@ -16,6 +16,11 @@ let records = [];
 let cur = 0;
 let bgUrl = null;
 let showBg = true;
+let editMode = false;
+let selIdx = -1;
+let previewScale = 1;
+let fdrag = null;
+const OV = (k) => 'tpl_override_' + k;
 
 const $ = (s) => document.querySelector(s);
 const reqKeys = () => coord.fields.filter(f => f.isField && f.key).map(f => f.key);
@@ -46,10 +51,12 @@ function renderPicker() {
   });
 }
 
-async function loadTemplate(key) {
+async function loadTemplate(key, forceShipped = false) {
   const entry = MANIFEST.find(t => t.key === key); if (!entry) return;
   TKEY = key;
-  coord = await (await fetch('templates/' + entry.file)).json();
+  const ov = forceShipped ? null : localStorage.getItem(OV(key));
+  coord = ov ? JSON.parse(ov) : await (await fetch('templates/' + entry.file)).json();
+  selIdx = -1;
   try { form = await (await fetch(`templates/${key}_form.json`)).json(); }
   catch { form = autoForm(coord); }
   bgUrl = coord.background || null;
@@ -96,6 +103,36 @@ function bindStatic() {
   $('#dlDocxOne').onclick = () => makeDocx(false);
   $('#dlDocxAll').onclick = () => makeDocx(true);
   window.addEventListener('resize', fitPage);
+
+  // --- kontrol edit halaman depan ---
+  $('#editToggle').onclick = () => setEditMode(!editMode);
+  $('#saveDefault').onclick = saveDefaultTpl;
+  $('#resetDefault').onclick = resetDefaultTpl;
+  $('#epFont').onchange = e => updateSel('font', e.target.value);
+  $('#epSize').oninput = e => updateSel('size', +e.target.value || 12);
+  $('#epColor').oninput = e => updateSel('color', e.target.value);
+  $('#epX').oninput = e => { updateSel('x', +e.target.value || 0); };
+  $('#epY').oninput = e => { updateSel('baseline', +e.target.value || 0); };
+  $('#epBold').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.bold = !f.bold; $('#epBold').classList.toggle('on', f.bold); const d = selDiv(); if (d) styleTextEl(d, f, records[cur]); };
+  $('#epItalic').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.italic = !f.italic; $('#epItalic').classList.toggle('on', f.italic); const d = selDiv(); if (d) styleTextEl(d, f, records[cur]); };
+  document.querySelectorAll('.epAl').forEach(b => b.onclick = () => {
+    const f = coord.fields[selIdx]; if (!f) return; f.align = b.dataset.al;
+    document.querySelectorAll('.epAl').forEach(x => x.classList.toggle('on', x === b));
+    const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+  });
+  $('#page').addEventListener('pointerdown', ev => { if (editMode && (ev.target.id === 'page' || ev.target.classList.contains('bg'))) selectField(-1); });
+  document.addEventListener('keydown', ev => {
+    if (!editMode || selIdx < 0) return;
+    const tag = (document.activeElement.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select') return;
+    const f = coord.fields[selIdx]; if (!f) return;
+    const step = ev.shiftKey ? 10 : 1;
+    if (ev.key === 'ArrowLeft') f.x -= step; else if (ev.key === 'ArrowRight') f.x += step;
+    else if (ev.key === 'ArrowUp') f.baseline -= step; else if (ev.key === 'ArrowDown') f.baseline += step; else return;
+    ev.preventDefault(); f.x = Math.round(f.x * 10) / 10; f.baseline = Math.round(f.baseline * 10) / 10;
+    const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+    $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
+  });
 }
 
 /* ---------------- mode Excel ---------------- */
@@ -177,26 +214,31 @@ function valueFor(fld, rec) {
   if (rec && rec[fld.key] != null && rec[fld.key] !== '') return rec[fld.key];
   return rec ? '' : '«' + fld.key + '»';
 }
+function styleTextEl(div, fld, rec) {
+  const sizePx = fld.size * PT;
+  div.style.left = (fld.x * PT) + 'px';
+  div.style.top = (fld.baseline * PT - sizePx * 0.80) + 'px';
+  div.style.fontSize = sizePx + 'px';
+  div.style.fontFamily = CSS_FONT[fld.font] || 'sans-serif';
+  div.style.fontWeight = fld.bold ? '700' : '400';
+  div.style.fontStyle = fld.italic ? 'italic' : 'normal';
+  div.style.color = fld.color || '#000';
+  div.style.transform = fld.align === 'center' ? 'translateX(-50%)' : fld.align === 'right' ? 'translateX(-100%)' : 'none';
+  div.textContent = valueFor(fld, rec);
+  if (!rec && fld.isField) div.style.color = editMode ? '#1f8fd0' : '#9fb0c0';
+}
 function renderPreview() {
   const page = $('#page'); page.innerHTML = '';
   page.style.width = (coord.page.w * PT) + 'px';
   page.style.height = (coord.page.h * PT) + 'px';
   if (bgUrl && showBg) { const img = document.createElement('img'); img.className = 'bg'; img.src = bgUrl; page.appendChild(img); }
   const rec = records[cur];
-  coord.fields.forEach(fld => {
+  coord.fields.forEach((fld, i) => {
     const div = document.createElement('div');
-    div.className = 't';
-    const sizePx = fld.size * PT;
-    div.style.left = (fld.x * PT) + 'px';
-    div.style.top = (fld.baseline * PT - sizePx * 0.80) + 'px';
-    div.style.fontSize = sizePx + 'px';
-    div.style.fontFamily = CSS_FONT[fld.font] || 'sans-serif';
-    div.style.fontWeight = fld.bold ? '700' : '400';
-    div.style.fontStyle = fld.italic ? 'italic' : 'normal';
-    div.style.color = fld.color || '#000';
-    div.style.transform = fld.align === 'center' ? 'translateX(-50%)' : fld.align === 'right' ? 'translateX(-100%)' : 'none';
-    div.textContent = valueFor(fld, rec);
-    if (!rec && fld.isField) div.style.color = '#9fb0c0';
+    div.className = 't' + (editMode ? ' editable' : '') + (i === selIdx ? ' sel-edit' : '');
+    div.dataset.idx = i;
+    styleTextEl(div, fld, rec);
+    if (editMode) div.addEventListener('pointerdown', startFieldDrag);
     page.appendChild(div);
   });
 }
@@ -204,9 +246,76 @@ function fitPage() {
   const stage = document.querySelector('.stage');
   const w = coord.page.w * PT, h = coord.page.h * PT;
   const scale = Math.min(1, (stage.clientWidth - 36) / w);
+  previewScale = scale;
   const page = $('#page');
   page.style.transform = `scale(${scale})`;
   page.style.marginBottom = (h * (scale - 1)) + 'px';
+}
+
+/* ---------------- edit di halaman depan ---------------- */
+function setEditMode(on) {
+  editMode = on; selIdx = -1;
+  $('#editToggle').classList.toggle('on', on);
+  $('#editToggle').textContent = on ? '✓ Mode Edit Aktif' : '✏️ Aktifkan Edit';
+  ['saveDefault', 'resetDefault'].forEach(id => $('#' + id).classList.toggle('hidden', !on));
+  $('#editPanel').classList.toggle('hidden', !on);
+  if (on) selectField(-1);
+  renderPreview();
+}
+function selectField(idx) {
+  selIdx = idx;
+  document.querySelectorAll('#page .t').forEach(n => n.classList.toggle('sel-edit', +n.dataset.idx === idx));
+  const f = coord.fields[idx];
+  $('#epName').textContent = f ? (f.isField ? '«' + f.key + '»' : '“' + (f.text || '') + '”') : 'Pilih teks di pratinjau…';
+  const dis = !f;
+  ['epFont', 'epSize', 'epBold', 'epItalic', 'epColor', 'epX', 'epY'].forEach(id => $('#' + id).disabled = dis);
+  document.querySelectorAll('.epAl').forEach(b => b.disabled = dis);
+  if (!f) return;
+  $('#epFont').value = f.font || 'Arial';
+  $('#epSize').value = f.size;
+  $('#epColor').value = (f.color || '#000000');
+  $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
+  $('#epBold').classList.toggle('on', !!f.bold);
+  $('#epItalic').classList.toggle('on', !!f.italic);
+  document.querySelectorAll('.epAl').forEach(b => b.classList.toggle('on', (f.align || 'left') === b.dataset.al));
+}
+function selDiv() { return document.querySelector(`#page .t[data-idx="${selIdx}"]`); }
+function updateSel(prop, val) {
+  const f = coord.fields[selIdx]; if (!f) return;
+  f[prop] = val; const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+}
+function startFieldDrag(ev) {
+  const idx = +ev.currentTarget.dataset.idx;
+  selectField(idx);
+  const f = coord.fields[idx];
+  fdrag = { idx, sx: ev.clientX, sy: ev.clientY, ox: f.x, oy: f.baseline };
+  ev.currentTarget.setPointerCapture(ev.pointerId);
+  ev.currentTarget.addEventListener('pointermove', onFieldDrag);
+  ev.currentTarget.addEventListener('pointerup', endFieldDrag);
+  ev.preventDefault();
+}
+function onFieldDrag(ev) {
+  if (!fdrag) return;
+  const f = coord.fields[fdrag.idx];
+  f.x = Math.round((fdrag.ox + (ev.clientX - fdrag.sx) / (previewScale * PT)) * 10) / 10;
+  f.baseline = Math.round((fdrag.oy + (ev.clientY - fdrag.sy) / (previewScale * PT)) * 10) / 10;
+  const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+  $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
+}
+function endFieldDrag(ev) {
+  const n = ev.currentTarget; n.removeEventListener('pointermove', onFieldDrag); n.removeEventListener('pointerup', endFieldDrag);
+  fdrag = null;
+}
+function saveDefaultTpl() {
+  localStorage.setItem(OV(TKEY), JSON.stringify(coord));
+  const b = $('#saveDefault'); const t = b.textContent; b.textContent = '✓ Tersimpan';
+  setTimeout(() => b.textContent = t, 1500);
+}
+async function resetDefaultTpl() {
+  if (!confirm('Kembalikan penempatan ' + (coord.name || TKEY) + ' ke bawaan? Perubahan tersimpan akan dihapus.')) return;
+  localStorage.removeItem(OV(TKEY));
+  await loadTemplate(TKEY, true);
+  if (editMode) setEditMode(true);
 }
 function onBg(e) {
   const file = e.target.files[0]; if (!file) return;
