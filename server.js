@@ -92,7 +92,25 @@ const server = http.createServer((req, res) => {
 
       const ext = path.extname(real).toLowerCase();
       const contentType = MIME[ext] || 'application/octet-stream';
-      res.writeHead(200, { 'Content-Type': contentType, ...SECURITY_HEADERS });
+
+      // Validasi cache: 'no-cache' = browser boleh simpan TAPI wajib cek ke server
+      // dulu. ETag/Last-Modified bikin pengecekan itu murah (304 bila tak berubah),
+      // sekaligus memastikan update file langsung terlihat (tidak kesangkut cache lama).
+      const etag = `"${stats.size.toString(16)}-${Math.floor(stats.mtimeMs).toString(16)}"`;
+      const cacheHdr = {
+        'Cache-Control': 'no-cache',
+        'ETag': etag,
+        'Last-Modified': stats.mtime.toUTCString(),
+      };
+      const ims = Date.parse(req.headers['if-modified-since'] || '');
+      const fresh = req.headers['if-none-match'] === etag ||
+        (!isNaN(ims) && Math.floor(stats.mtimeMs / 1000) * 1000 <= ims);
+      if (fresh) {
+        res.writeHead(304, { ...cacheHdr, ...SECURITY_HEADERS });
+        return res.end();
+      }
+
+      res.writeHead(200, { 'Content-Type': contentType, ...cacheHdr, ...SECURITY_HEADERS });
       if (req.method === 'HEAD') return res.end();
       fs.createReadStream(real).pipe(res);
     });
