@@ -30,6 +30,7 @@ let form = null;       // metadata form (label/ask/default)
 let baseDocx = null;   // kerangka docx (lazy)
 let records = [];
 let cur = 0;
+let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
 let bgUrl = null;
 let showBg = true;
 let editMode = false;
@@ -109,6 +110,7 @@ function bindStatic() {
   $('#excelFile').onchange = onExcel;
   $('#sampleXlsx').onclick = downloadSample;
   $('#addRecord').onclick = addManual;
+  $('#previewManual').onclick = previewManual;
   $('#clearRecords').onclick = () => { records = []; cur = 0; refreshRecords(); renderPreview(); };
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
@@ -200,34 +202,67 @@ function buildManualForm() {
       <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="${escapeAttr(val)}">`;
     f.appendChild(wrap);
   });
-  $('#addRecord').style.display = keys.length ? '' : 'none';
+  $('#manualActions').style.display = keys.length ? '' : 'none';
 }
-function addManual() {
+// Baca isi form manual jadi satu objek record (+ kumpulan field "tetap").
+function readManualForm() {
   const o = {}, consts = {};
   $('#manualForm').querySelectorAll('input').forEach(inp => {
     o[inp.dataset.key] = inp.value.trim();
     if (inp.dataset.ask === '0') consts[inp.dataset.key] = inp.value.trim();
   });
+  return { o, consts };
+}
+function addManual() {
+  const { o, consts } = readManualForm();
   localStorage.setItem('const_' + TKEY, JSON.stringify(consts));
   records.push(o); cur = records.length - 1;
   $('#manualForm').querySelectorAll('input[data-ask="1"]').forEach(i => i.value = '');
-  refreshRecords(); renderPreview();
+  refreshRecords(); renderPreview();   // refreshRecords() mereset manualPreview
+}
+// Pratinjau data yang sedang diketik TANPA menambahkannya ke daftar.
+function previewManual() {
+  const { o } = readManualForm();
+  manualPreview = o;
+  const note = $('#manualPreviewNote'); if (note) note.classList.remove('hidden');
+  renderPreview();
 }
 
 /* ---------------- records ---------------- */
+function recordName(r, i) {
+  const firstVal = Object.values(r).find(v => v != null && String(v).trim() !== '');
+  return r.Nama_Lengkap || r.Nama || firstVal || `(data ${i + 1})`;
+}
 function refreshRecords() {
+  manualPreview = null;                                   // keluar dari mode pratinjau manual
+  const note = $('#manualPreviewNote'); if (note) note.classList.add('hidden');
   $('#recCount').textContent = records.length + ' data';
   const ol = $('#recordList'); ol.innerHTML = '';
   records.forEach((r, i) => {
     const li = document.createElement('li');
-    li.textContent = r.Nama_Lengkap || r.Nama || `(data ${i + 1})`;
     if (i === cur) li.classList.add('active');
     li.onclick = () => { cur = i; refreshRecords(); renderPreview(); };
+    const name = document.createElement('span');
+    name.className = 'rec-name';
+    name.textContent = recordName(r, i);
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'rec-del';
+    del.textContent = '✕';
+    del.title = 'Hapus data ini';
+    del.onclick = (e) => { e.stopPropagation(); deleteRecord(i); };
+    li.appendChild(name); li.appendChild(del);
     ol.appendChild(li);
   });
   const has = records.length > 0;
   $('#navLabel').textContent = has ? `${cur + 1} / ${records.length}` : '— / —';
   ['dlPdfOne', 'dlPdfAll', 'dlDocxOne', 'dlDocxAll', 'prev', 'next'].forEach(id => $('#' + id).disabled = !has);
+}
+// Hapus satu data dari daftar (bukan kosongkan semua).
+function deleteRecord(i) {
+  records.splice(i, 1);
+  if (cur >= records.length) cur = Math.max(0, records.length - 1);
+  refreshRecords(); renderPreview();
 }
 
 /* ---------------- preview ---------------- */
@@ -254,7 +289,7 @@ function renderPreview() {
   page.style.width = (coord.page.w * PT) + 'px';
   page.style.height = (coord.page.h * PT) + 'px';
   if (bgUrl && showBg) { const img = document.createElement('img'); img.className = 'bg'; img.src = bgUrl; page.appendChild(img); }
-  const rec = records[cur];
+  const rec = manualPreview || records[cur];
   coord.fields.forEach((fld, i) => {
     const div = document.createElement('div');
     div.className = 't' + (editMode ? ' editable' : '') + (i === selIdx ? ' sel-edit' : '');
@@ -277,6 +312,8 @@ function fitPage() {
 /* ---------------- edit di halaman depan ---------------- */
 function setEditMode(on) {
   editMode = on; selIdx = -1;
+  manualPreview = null;
+  const note = $('#manualPreviewNote'); if (note) note.classList.add('hidden');
   $('#editToggle').classList.toggle('on', on);
   $('#editToggle').textContent = on ? '✓ Mode Edit Aktif' : '✏️ Aktifkan Edit';
   ['saveDefault', 'resetDefault'].forEach(id => $('#' + id).classList.toggle('hidden', !on));

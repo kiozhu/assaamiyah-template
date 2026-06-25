@@ -176,6 +176,18 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
 #recordList li.active{background:linear-gradient(145deg,rgba(31,174,95,.20),rgba(25,201,176,.08));
   border-color:rgba(31,174,95,.4);font-weight:600;color:#eafff3;box-shadow:0 0 18px rgba(31,174,95,.2)}
 #recordList li.active:before{content:"📄";opacity:1}
+.rec-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec-del{flex:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid transparent;border-radius:7px;color:var(--muted);
+  font-size:12px;line-height:1;cursor:pointer;transition:.15s}
+.rec-del:hover{background:rgba(229,72,72,.16);border-color:rgba(229,72,72,.42);color:#ff9b9b}
+
+/* ===== input manual: aksi & pratinjau ===== */
+.manual-actions{display:flex;gap:8px;margin-top:6px}
+.manual-actions .btn.primary{flex:1}
+.manual-prev-note{margin-top:9px;font-size:12px;color:#bff7d6;line-height:1.5;
+  background:rgba(31,174,95,.10);border:1px dashed rgba(31,174,95,.35);border-radius:9px;padding:8px 11px}
+.manual-prev-note.hidden{display:none}
 
 /* ===== advanced ===== */
 .adv{margin-top:16px;font-size:13px;border-top:1px solid var(--brd);padding-top:12px}

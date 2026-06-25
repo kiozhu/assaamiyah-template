@@ -77,7 +77,11 @@
       <p class="hint">Isi data lalu <b>Tambah</b>. Field tetap tersimpan di browser ini
         supaya tidak ketik ulang.</p>
       <form id="manualForm"></form>
-      <button id="addRecord" class="btn primary sm">➕ Tambah ke daftar</button>
+      <div id="manualActions" class="manual-actions">
+        <button id="previewManual" class="btn ghost sm" title="Lihat hasil input ini di pratinjau (belum disimpan)">👁️ Preview</button>
+        <button id="addRecord" class="btn primary sm">➕ Tambah ke daftar</button>
+      </div>
+      <div id="manualPreviewNote" class="manual-prev-note hidden">👁️ Pratinjau data ini — <b>belum ditambahkan</b>. Klik “➕ Tambah ke daftar” bila sudah yakin.</div>
     </div>
 
     <div class="records">
