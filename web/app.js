@@ -126,7 +126,7 @@ function bindStatic() {
   $('#sampleEmpty').onclick = () => downloadSample(false);
   $('#sampleFilled').onclick = () => downloadSample(true);
   $('#addRecord').onclick = addManual;
-  $('#previewManual').onclick = previewManual;
+  $('#manualForm').oninput = previewManual;   // pratinjau auto-refresh tiap kolom diisi
   $('#nameModalSave').onclick = confirmAddName;
   $('#nameModalCancel').onclick = closeNameModal;
   $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
@@ -227,7 +227,6 @@ async function onExcel(e) {
 
 /* ---------------- mode Manual ---------------- */
 function buildManualForm() {
-  const saved = JSON.parse(localStorage.getItem('const_' + TKEY) || '{}');
   const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
   const keys = uniqueFieldKeys();              // diturunkan dari placeholder terkini di coord
   const f = $('#manualForm'); f.innerHTML = '';
@@ -235,9 +234,9 @@ function buildManualForm() {
     const m = meta[key] || { key, label: key.replace(/_/g, ' '), ask: true };
     const wrap = document.createElement('div');
     wrap.className = 'fld' + (m.ask ? '' : ' const');
-    const val = m.ask ? '' : (saved[key] ?? m.default ?? '');
+    // semua field mulai KOSONG (tanpa nilai default)
     wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}</label>
-      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="${escapeAttr(val)}">`;
+      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="">`;
     f.appendChild(wrap);
   });
   $('#manualActions').style.display = keys.length ? '' : 'none';
