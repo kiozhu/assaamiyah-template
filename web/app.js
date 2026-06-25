@@ -145,8 +145,8 @@ function bindStatic() {
   $('#epFont').onchange = e => updateSel('font', e.target.value);
   $('#epSize').oninput = e => updateSel('size', +e.target.value || 12);
   $('#epColor').oninput = e => updateSel('color', e.target.value);
-  $('#epX').oninput = e => { updateSel('x', +e.target.value || 0); };
-  $('#epY').oninput = e => { updateSel('baseline', +e.target.value || 0); };
+  $('#epX').oninput = e => { updateSel('x', +e.target.value || 0); reorderManualForm(); };
+  $('#epY').oninput = e => { updateSel('baseline', +e.target.value || 0); reorderManualForm(); };
   $('#epBold').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.bold = !f.bold; $('#epBold').classList.toggle('on', f.bold); const d = selDiv(); if (d) styleTextEl(d, f, records[cur]); };
   $('#epItalic').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.italic = !f.italic; $('#epItalic').classList.toggle('on', f.italic); const d = selDiv(); if (d) styleTextEl(d, f, records[cur]); };
   document.querySelectorAll('.epAl').forEach(b => b.onclick = () => {
@@ -166,6 +166,7 @@ function bindStatic() {
     ev.preventDefault(); f.x = Math.round(f.x * 10) / 10; f.baseline = Math.round(f.baseline * 10) / 10;
     const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
     $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
+    reorderManualForm();
   });
 }
 
@@ -216,6 +217,15 @@ function buildManualForm() {
     f.appendChild(wrap);
   });
   $('#manualActions').style.display = keys.length ? '' : 'none';
+}
+// Susun ulang urutan input manual mengikuti posisi placeholder TERKINI, tanpa
+// membangun ulang form (memindah elemen yang sudah ada -> nilai yang sudah
+// diketik tetap aman). Dipanggil tiap kali posisi placeholder berubah.
+function reorderManualForm() {
+  const f = $('#manualForm'); if (!f) return;
+  const wraps = new Map();
+  f.querySelectorAll('.fld').forEach(w => { const inp = w.querySelector('input'); if (inp) wraps.set(inp.dataset.key, w); });
+  uniqueFieldKeys().forEach(key => { const w = wraps.get(key); if (w) f.appendChild(w); });
 }
 // Baca isi form manual jadi satu objek record (+ kumpulan field "tetap").
 function readManualForm() {
@@ -377,6 +387,7 @@ function onFieldDrag(ev) {
 function endFieldDrag(ev) {
   const n = ev.currentTarget; n.removeEventListener('pointermove', onFieldDrag); n.removeEventListener('pointerup', endFieldDrag);
   fdrag = null;
+  reorderManualForm();   // posisi berubah -> urutan input manual ikut menyesuaikan
 }
 function saveDefaultTpl() {
   localStorage.setItem(OV(TKEY), JSON.stringify(coord));
