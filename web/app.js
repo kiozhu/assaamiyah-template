@@ -31,6 +31,18 @@ let baseDocx = null;   // kerangka docx (lazy)
 let records = [];
 const recordsByTpl = {};   // data per-template (ijazah/skhu/nilai_ijazah TERPISAH)
 const statusByTpl = {};    // status upload Excel per-template
+const draftByTpl = {};     // draft isian manual yang BELUM ditambahkan (per template)
+const LS_DATA = 'assa_data_v1';   // autosave: agar data tidak hilang saat refresh/disconnect
+function persist() {
+  try { localStorage.setItem(LS_DATA, JSON.stringify({ records: recordsByTpl, drafts: draftByTpl })); } catch (e) {}
+}
+function loadPersisted() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_DATA) || '{}');
+    if (d.records) Object.assign(recordsByTpl, d.records);
+    if (d.drafts) Object.assign(draftByTpl, d.drafts);
+  } catch (e) {}
+}
 let cur = 0;
 let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
 let pendingRecord = null;   // data menunggu diberi nama di dialog sebelum masuk daftar
@@ -64,6 +76,7 @@ function uniqueFieldKeys() {
 /* ---------------- init ---------------- */
 async function init() {
   bindStatic();
+  loadPersisted();           // pulihkan data & draft tersimpan (anti-hilang saat refresh)
   try {
     MANIFEST = (await (await fetch('templates/manifest.json')).json()).templates;
   } catch {
@@ -154,7 +167,7 @@ function bindStatic() {
   $('#edBgFile').onchange = onChangeBg;
   updateAdminUI();
   $('#clearRecords').onclick = () => {
-    records = []; cur = 0; recordsByTpl[TKEY] = records; delete statusByTpl[TKEY];
+    records = []; cur = 0; recordsByTpl[TKEY] = records; delete statusByTpl[TKEY]; persist();
     const st = $('#excelStatus'); if (st) { st.className = 'status'; st.textContent = ''; }
     refreshRecords(); renderPreview();
   };
@@ -234,6 +247,7 @@ async function onExcel(e) {
     records = data; cur = 0; recordsByTpl[TKEY] = data;
     st.className = 'status ok'; st.textContent = `✅ ${data.length} data terbaca (sheet: ${name}).`;
     statusByTpl[TKEY] = { cls: 'ok', text: st.textContent };
+    persist();
     refreshRecords(); renderPreview();
   } catch (err) {
     st.className = 'status err'; st.textContent = 'Gagal baca Excel: ' + err.message;
@@ -243,15 +257,16 @@ async function onExcel(e) {
 /* ---------------- mode Manual ---------------- */
 function buildManualForm() {
   const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
+  const draft = draftByTpl[TKEY] || {};        // pulihkan ketikan yang belum ditambahkan
   const keys = uniqueFieldKeys();              // diturunkan dari placeholder terkini di coord
   const f = $('#manualForm'); f.innerHTML = '';
   keys.forEach(key => {
     const m = meta[key] || { key, label: key.replace(/_/g, ' '), ask: true };
     const wrap = document.createElement('div');
     wrap.className = 'fld' + (m.ask ? '' : ' const');
-    // semua field mulai KOSONG (tanpa nilai default)
+    // mulai kosong; kecuali ada draft tersimpan (anti-hilang saat refresh)
     wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}</label>
-      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="">`;
+      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="${escapeAttr(draft[key] || '')}">`;
     f.appendChild(wrap);
   });
   $('#manualActions').style.display = keys.length ? '' : 'none';
@@ -289,9 +304,9 @@ function confirmAddName() {
   const { o, consts } = pendingRecord;
   const name = $('#nameModalInput').value.trim();
   if (name) o.__label = name;                  // label tampilan di daftar (tidak ikut tercetak)
-  localStorage.setItem('const_' + TKEY, JSON.stringify(consts));
   records.push(o); cur = records.length - 1;
-  $('#manualForm').querySelectorAll('input[data-ask="1"]').forEach(i => i.value = '');
+  $('#manualForm').querySelectorAll('input').forEach(i => i.value = '');   // kosongkan utk entri berikutnya
+  delete draftByTpl[TKEY]; persist();           // data tersimpan, draft selesai
   closeNameModal();
   refreshRecords(); renderPreview();           // refreshRecords() mereset manualPreview
 }
@@ -303,6 +318,7 @@ function closeNameModal() {
 function previewManual() {
   const { o } = readManualForm();
   manualPreview = o;
+  draftByTpl[TKEY] = o; persist();             // simpan draft tiap ketik (anti-hilang)
   const note = $('#manualPreviewNote'); if (note) note.classList.remove('hidden');
   renderPreview();
 }
@@ -342,6 +358,7 @@ function refreshRecords() {
 function deleteRecord(i) {
   records.splice(i, 1);
   if (cur >= records.length) cur = Math.max(0, records.length - 1);
+  persist();
   refreshRecords(); renderPreview();
 }
 
