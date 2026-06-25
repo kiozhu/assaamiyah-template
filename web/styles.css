@@ -258,6 +258,13 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
 .foot-logo{width:50px;height:50px;object-fit:contain;background:#fff;border-radius:12px;padding:4px}
 .site-footer b{font-family:var(--display);color:#eafff3}
 .site-footer .muted{color:var(--muted)}
+.foot-links{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.foot-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-size:13px;
+  color:var(--ink);text-decoration:none;background:var(--glass);border:1px solid var(--brd);
+  border-radius:10px;padding:8px 13px;cursor:pointer;transition:.18s}
+.foot-link:hover{border-color:var(--green-2);color:#bff7d6;box-shadow:0 0 14px rgba(31,174,95,.18)}
+.foot-link .soon{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#04120a;
+  background:var(--gold);border-radius:6px;padding:1px 6px;font-weight:700}
 .foot-badge{margin-left:auto;background:var(--glass);border:1px solid var(--brd);
   padding:9px 15px;border-radius:999px;white-space:nowrap;color:#bff7d6}
 

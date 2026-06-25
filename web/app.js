@@ -149,6 +149,8 @@ function bindStatic() {
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
   $('#bgImage').onchange = onBg;
   $('#resetBg').onclick = resetBg;
+  const donasi = $('#donasiBtn');
+  if (donasi) donasi.onclick = () => alert('💝 Donasi akan segera dibuka.\nNomor rekening menyusul — terima kasih atas dukungannya! 🙏');
   $('#showBg').onchange = (e) => { showBg = e.target.checked; renderPreview(); };
   $('#dlPdfOne').onclick = () => makePdf(false);
   $('#dlPdfAll').onclick = () => makePdf(true);
