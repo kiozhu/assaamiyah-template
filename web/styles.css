@@ -135,13 +135,13 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 /* ===== form / file ===== */
 .hint{font-size:12.5px;color:var(--muted);margin:6px 0}
 .center{text-align:center}
-.file-drop{display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px;cursor:pointer;
+.file-drop{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px;cursor:pointer;
   border:1.5px dashed rgba(31,174,95,.45);border-radius:14px;color:#bff7d6;font-size:13.5px;font-weight:500;
   background:rgba(31,174,95,.06);transition:.25s}
 .file-drop:hover{border-color:var(--green-2);background:rgba(31,174,95,.13);box-shadow:0 0 26px rgba(31,174,95,.25) inset}
 .file-drop .fd-ic{font-size:26px;filter:drop-shadow(0 0 8px rgba(31,174,95,.6))}
-/* input file disembunyikan secara aksesibel (bukan display:none) agar andal di HP */
-.file-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+/* input transparan MENUTUPI area: ketukan di HP langsung mengenai input (paling andal) */
+.file-cover{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 #manualForm{display:grid;gap:10px;margin:8px 0 12px}
 .fld{display:grid;gap:4px}
 .fld label{font-size:11.5px;color:var(--muted);font-weight:500;font-family:var(--display)}

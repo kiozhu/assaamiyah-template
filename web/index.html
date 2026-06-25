@@ -71,12 +71,12 @@
 
     <div class="tabpane" id="tab-excel">
       <p class="hint">Pilih file <b>.xlsx</b>. Header kolom harus sesuai format.</p>
-      <label class="file-drop" for="excelFile">
+      <div class="file-drop">
         <span class="fd-ic">⬆️</span>
-        <span>Klik untuk pilih file Excel</span>
-        <input type="file" id="excelFile" class="file-input"
+        <span>Ketuk untuk pilih file Excel</span>
+        <input type="file" id="excelFile" class="file-cover" aria-label="Pilih file Excel"
                accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
-      </label>
+      </div>
       <div class="sample-btns">
         <button id="sampleEmpty" class="btn ghost sm" title="Header kolom saja, siap Anda isi">⬇️ Format Kosong</button>
         <button id="sampleFilled" class="btn ghost sm" title="Contoh 30 baris terisi otomatis">⬇️ Contoh Pengisian</button>
