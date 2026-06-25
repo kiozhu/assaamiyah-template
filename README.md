@@ -1,20 +1,18 @@
 # Assaamiyah — Generator Sertifikat (Ijazah/SKHU)
 
-Membuat sertifikat (Ijazah, dst) dari data Excel, dengan **preview langsung** dan
-**download PDF + Word**. Dua cara pakai:
+Membuat sertifikat (Ijazah, Nilai, SKHU) dari data Excel **atau** input manual,
+dengan **preview langsung** dan **download PDF + Word**.
 
-- **🌐 Web app (utama)** — diakses guru lewat browser. **100% client-side**: data
-  diproses di browser, **tidak dikirim/disimpan di server**. Server hanya nginx
-  yang menyajikan file statis → otomatis nyala 24 jam, tidak ada proses yang dijaga.
-- **🤖 Bot Telegram (opsional)** — alternatif via chat. Butuh proses `systemd`.
+**🌐 Web app — 100% client-side**: semua data diproses di browser pengunjung,
+**tidak dikirim/disimpan di server**. Server hanya menyajikan file statis, jadi
+otomatis nyala 24 jam tanpa proses yang perlu dijaga.
 
 ```
 web/        aplikasi browser (HTML/JS) — INI yang dideploy ke publik
-app/        bot Telegram (opsional)
 templates/  ijazah.docx + ijazah.json (peta koordinat presisi)
-tools/      generator template dari koordinat
-config/     daftar template + field
-deploy/     nginx + script deploy + systemd
+tools/      generator file template dari koordinat (Python, opsional)
+config/     daftar template + field (referensi)
+deploy/     config nginx + script deploy ke VPS
 ```
 
 ## Deploy web ke VPS (lewat GitHub)
@@ -41,11 +39,12 @@ cd web && python -m http.server 8770   # buka http://localhost:8770
 ## Detail
 - Web app: lihat [`web/README_web.md`](web/README_web.md)
 - Font agar PDF identik: taruh `*.ttf` di `web/assets/fonts/` (lihat README web)
-- Template baru / setel posisi: ubah `tools/build_ijazah_template.py` lalu jalankan
-  (meng-update `ijazah.docx` + `ijazah.json`)
-- Bot Telegram: butuh LibreOffice + `.env` (lihat `deploy/setup_vps.sh`)
+- Template baru / setel posisi: paling mudah lewat **🎨 Editor Template** di web app.
+  Alternatif (Python): ubah `tools/build_ijazah_template.py` lalu jalankan
+  (meng-update `ijazah.docx` + `web/templates/ijazah.json`).
 
 ## Keamanan data
-Web app tidak punya backend: Excel yang diupload & data yang diketik guru tidak
-pernah di-POST ke server. Semua parsing/render PDF/Word terjadi di browser.
-Tidak ada database, tidak ada log data.
+Web app tidak punya backend untuk data: Excel yang diupload & data yang diketik
+tidak pernah di-POST ke server. Semua parsing/render PDF/Word terjadi di browser.
+Tidak ada database, tidak ada log data. Server (`server.js`) hanya menyajikan file
+statis read-only.

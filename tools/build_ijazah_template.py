@@ -1,8 +1,8 @@
-"""Bangun templates/ijazah.docx (versi docxtpl / Jinja {{ }}).
+"""Bangun templates/ijazah.docx + web/templates/ijazah.json (peta koordinat).
 
 Layout, font, ukuran, bold diekstrak presisi dari Format_teks.pdf (Ijazah).
-Tiap teks = 1 text box posisi absolut (page-relative) berisi tag {{ Field }}.
-Dipakai oleh docxtpl -> render -> LibreOffice -> PDF.
+Tiap teks = 1 text box posisi absolut (page-relative).
+Output JSON dipakai oleh web app (web/) untuk render PDF/Word langsung di browser.
 """
 import os
 from docx import Document
