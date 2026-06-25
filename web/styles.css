@@ -40,9 +40,7 @@ body{margin:0;color:var(--ink);font-family:var(--body);line-height:1.55;
                    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
   background-size:46px 46px;
   -webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%);
-          mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%);
-  animation:gridPan 26s linear infinite}
-@keyframes gridPan{to{background-position:46px 46px}}
+          mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%)}
 @keyframes auroraSpin{to{transform:rotate(1turn)}}
 @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}30%{transform:translate(110px,70px) scale(1.14)}60%{transform:translate(50px,150px) scale(1.06)}}
 @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}35%{transform:translate(-100px,60px) scale(1.12)}70%{transform:translate(-40px,-60px) scale(1.05)}}
