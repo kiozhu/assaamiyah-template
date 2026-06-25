@@ -32,6 +32,7 @@ let records = [];
 let cur = 0;
 let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
 let pendingRecord = null;   // data menunggu diberi nama di dialog sebelum masuk daftar
+let adminToken = null;      // token sesi admin (di memori + sessionStorage)
 let bgUrl = null;
 let showBg = true;
 let editMode = false;
@@ -129,6 +130,16 @@ function bindStatic() {
   $('#nameModalCancel').onclick = closeNameModal;
   $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
   $('#nameModal').onclick = (e) => { if (e.target.id === 'nameModal') closeNameModal(); };
+
+  // --- admin (simpan default global) ---
+  adminToken = sessionStorage.getItem('admin_token') || null;
+  $('#adminBtn').onclick = () => { if (adminToken) adminLogout(); else openAdminModal(); };
+  $('#adminLoginBtn').onclick = doAdminLogin;
+  $('#adminCancel').onclick = closeAdminModal;
+  $('#adminPass').onkeydown = (e) => { if (e.key === 'Enter') doAdminLogin(); else if (e.key === 'Escape') closeAdminModal(); };
+  $('#adminModal').onclick = (e) => { if (e.target.id === 'adminModal') closeAdminModal(); };
+  $('#saveGlobal').onclick = saveDefaultGlobal;
+  updateAdminUI();
   $('#clearRecords').onclick = () => { records = []; cur = 0; refreshRecords(); renderPreview(); };
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
@@ -365,6 +376,7 @@ function setEditMode(on) {
   $('#editToggle').textContent = on ? '✓ Mode Edit Aktif' : '✏️ Aktifkan Edit';
   ['saveDefault', 'resetDefault'].forEach(id => $('#' + id).classList.toggle('hidden', !on));
   $('#editPanel').classList.toggle('hidden', !on);
+  updateAdminUI();                         // tombol "Simpan Global" ikut mode edit + status admin
   if (on) selectField(-1);
   renderPreview();
 }
@@ -423,6 +435,58 @@ async function resetDefaultTpl() {
   localStorage.removeItem(OV(TKEY));
   await loadTemplate(TKEY, true);
   if (editMode) setEditMode(true);
+}
+
+/* ---------------- admin: simpan default global ---------------- */
+function updateAdminUI() {
+  const on = !!adminToken;
+  const b = $('#adminBtn');
+  if (b) { b.textContent = on ? '🔓 Admin aktif' : '🔑 Admin'; b.classList.toggle('on', on); b.title = on ? 'Klik untuk keluar admin' : 'Login admin untuk menyimpan default global'; }
+  const sg = $('#saveGlobal');
+  if (sg) sg.classList.toggle('hidden', !(editMode && on));   // hanya saat mode edit + admin
+}
+function openAdminModal() {
+  const m = $('#adminMsg'); m.textContent = ''; m.className = 'modal-msg';
+  $('#adminPass').value = '';
+  $('#adminModal').classList.remove('hidden');
+  $('#adminPass').focus();
+}
+function closeAdminModal() { $('#adminModal').classList.add('hidden'); }
+function adminLogout() { adminToken = null; sessionStorage.removeItem('admin_token'); updateAdminUI(); }
+async function doAdminLogin() {
+  const m = $('#adminMsg'); m.className = 'modal-msg'; m.textContent = 'Memeriksa…';
+  try {
+    const r = await fetch('/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: $('#adminPass').value }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok && j.token) {
+      adminToken = j.token; sessionStorage.setItem('admin_token', adminToken);
+      closeAdminModal(); updateAdminUI();
+      if (!editMode) setEditMode(true);     // langsung masuk mode edit agar tombol Simpan Global terlihat
+    } else { m.className = 'modal-msg err'; m.textContent = j.error || 'Gagal login'; }
+  } catch (e) { m.className = 'modal-msg err'; m.textContent = 'Gagal menghubungi server'; }
+}
+async function saveDefaultGlobal() {
+  if (!adminToken) return openAdminModal();
+  if (!confirm('Simpan tata letak "' + (coord.name || TKEY) + '" sebagai DEFAULT GLOBAL untuk SEMUA pengunjung?')) return;
+  const sg = $('#saveGlobal'); const t0 = sg.textContent; sg.disabled = true; sg.textContent = '⏳ Menyimpan…';
+  try {
+    const r = await fetch('/admin/save-default', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+      body: JSON.stringify({ key: TKEY, coord }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) {
+      localStorage.removeItem(OV(TKEY));    // hapus override lokal agar ikut versi global
+      alert('✅ Tersimpan sebagai default global untuk semua pengunjung.\nStatus simpan ke GitHub: ' + (j.git || '-'));
+    } else if (r.status === 401) {
+      adminLogout(); openAdminModal();
+      $('#adminMsg').className = 'modal-msg err'; $('#adminMsg').textContent = 'Sesi berakhir, login lagi.';
+    } else {
+      alert('❌ Gagal: ' + (j.error || ('HTTP ' + r.status)));
+    }
+  } catch (e) { alert('❌ Gagal menghubungi server: ' + e.message); }
+  finally { sg.disabled = false; sg.textContent = t0; }
 }
 function addElementFront(isField) {
   let key = '', text = '';

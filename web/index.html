@@ -36,6 +36,7 @@
   </div>
   <div class="header-right ed-nav" style="display:flex;align-items:center;gap:10px">
     <a class="btn ghost sm" href="editor.html">🎨 Editor Template</a>
+    <button id="adminBtn" class="btn ghost sm" title="Login admin untuk menyimpan default global">🔑 Admin</button>
     <span class="pill secure" title="Semua proses di browser. Tidak ada data yang dikirim ke server.">🔒 Data lokal — aman</span>
   </div>
 </header>
@@ -121,7 +122,8 @@
 
     <div class="toolbar">
       <button id="editToggle" class="btn ghost">✏️ Aktifkan Edit</button>
-      <button id="saveDefault" class="btn ghost hidden">💾 Simpan Default</button>
+      <button id="saveDefault" class="btn ghost hidden" title="Simpan ke browser ini saja">💾 Simpan Default</button>
+      <button id="saveGlobal" class="btn primary hidden" title="Simpan untuk SEMUA pengunjung (perlu login admin)">🌐 Simpan Global</button>
       <button id="resetDefault" class="btn ghost hidden">↩️ Reset Default</button>
       <span style="flex:1"></span>
       <button id="dlPdfOne" class="btn primary">⬇️ PDF (ini)</button>
@@ -171,6 +173,20 @@
   </div>
   <div class="foot-badge">🔒 Data tidak dikirim ke server</div>
 </footer>
+
+<!-- Dialog: login admin -->
+<div id="adminModal" class="modal-overlay hidden">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+    <h3 id="adminModalTitle">🔑 Login Admin</h3>
+    <p class="modal-hint">Masuk untuk menyimpan tata letak sebagai <b>default global</b> yang dilihat semua pengunjung.</p>
+    <input id="adminPass" type="password" autocomplete="current-password" placeholder="Sandi admin">
+    <div id="adminMsg" class="modal-msg"></div>
+    <div class="modal-actions">
+      <button id="adminCancel" class="btn ghost sm">Batal</button>
+      <button id="adminLoginBtn" class="btn primary sm">Masuk</button>
+    </div>
+  </div>
+</div>
 
 <!-- Dialog: beri nama data sebelum disimpan ke daftar -->
 <div id="nameModal" class="modal-overlay hidden">

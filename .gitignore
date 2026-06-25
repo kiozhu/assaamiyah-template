@@ -1,5 +1,7 @@
 # rahasia & runtime
 .env
+.admin_secret
+.tpl_tmp_*.json
 data/work/
 data/*.xlsx
 data/*.docx

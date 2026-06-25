@@ -194,6 +194,9 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
   font-size:14px;font-family:var(--body);background:var(--glass-2);color:var(--ink)}
 .modal input:focus{outline:none;border-color:var(--green-2);box-shadow:0 0 0 3px rgba(21,214,126,.15)}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
+.modal-msg{font-size:12px;margin-top:9px;min-height:1em;line-height:1.4}
+.modal-msg.err{color:#ff9b9b}
+.modal-msg.ok{color:#bff7d6}
 
 /* ===== input manual: aksi & pratinjau ===== */
 .manual-actions{display:flex;gap:8px;margin-top:6px}
