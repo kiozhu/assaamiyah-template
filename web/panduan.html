@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan — Generator Dokumen MDTU As'saamiyah</title>
+<link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .guide{max-width:920px;margin:0 auto;padding:18px 22px 60px}
+  .guide-hero{text-align:center;padding:18px 10px 6px}
+  .guide-hero h1{font-family:var(--display);font-size:30px;margin:0 0 6px;
+    background:linear-gradient(120deg,#eafff3,#bff7d6 60%,var(--green-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .guide-hero p{color:var(--muted);margin:0;font-size:15px}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 8px}
+  .toc a{font-size:12.5px;color:#bff7d6;text-decoration:none;background:var(--glass);border:1px solid var(--brd);
+    border-radius:999px;padding:7px 13px;font-family:var(--display)}
+  .toc a:hover{border-color:var(--green-2)}
+  .gsec{background:var(--glass);border:1px solid var(--brd);border-radius:16px;padding:20px 22px;margin:16px 0;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .gsec h2{font-family:var(--display);font-size:19px;margin:0 0 4px;color:#eafff3;display:flex;align-items:center;gap:10px}
+  .gsec h2 .n{flex:none;width:30px;height:30px;display:grid;place-items:center;border-radius:9px;font-size:14px;
+    background:rgba(31,174,95,.16);border:1px solid rgba(31,174,95,.3);color:#bff7d6}
+  .gsec .lead{color:var(--muted);margin:2px 0 14px;font-size:14px}
+  .gsec h3{font-family:var(--display);font-size:15px;margin:16px 0 7px;color:#cdeede}
+  .guide ol,.guide ul{margin:8px 0;padding-left:22px;line-height:1.7;font-size:14.5px}
+  .guide li{margin:5px 0}
+  .guide p{line-height:1.7;font-size:14.5px;color:#dfeee7}
+  .key{display:inline-block;font-family:var(--display);font-size:12.5px;font-weight:600;color:#04120a;
+    background:linear-gradient(145deg,var(--green-2),var(--green));border-radius:8px;padding:2px 9px;white-space:nowrap}
+  .key.g{color:#cfe;background:var(--glass-2);border:1px solid var(--brd)}
+  .key.gold{color:#04120a;background:var(--gold)}
+  .note{border-left:3px solid var(--green-2);background:rgba(31,174,95,.08);border-radius:0 10px 10px 0;
+    padding:11px 14px;margin:12px 0;font-size:13.5px;color:#cdeede}
+  .note.warn{border-left-color:var(--gold);background:rgba(231,199,102,.08)}
+  .gtable{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  .gtable th,.gtable td{border:1px solid var(--brd);padding:9px 11px;text-align:left;vertical-align:top}
+  .gtable th{background:rgba(31,174,95,.10);font-family:var(--display);color:#cdeede}
+  .guide details{border:1px solid var(--brd);border-radius:11px;padding:4px 14px;margin:9px 0;background:var(--glass)}
+  .guide summary{cursor:pointer;padding:9px 0;font-family:var(--display);font-size:14px;color:#eafff3}
+  .guide summary:hover{color:#bff7d6}
+  .back-link{display:inline-flex;align-items:center;gap:7px}
+</style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <div class="grid-overlay"></div>
+</div>
+
+<header class="site-header">
+  <div class="brand">
+    <img class="brand-logo" src="assets/logo.jpg" alt="Logo MDTU As'saamiyah">
+    <div class="brand-text">
+      <div class="brand-name">Panduan Pemakaian</div>
+      <div class="brand-sub">Generator Dokumen · MDTU As'saamiyah</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a class="btn primary sm back-link" href="index.html">← Kembali ke Aplikasi</a>
+  </div>
+</header>
+
+<main class="guide">
+
+  <div class="guide-hero">
+    <h1>Cara Pakai — Mudah, Langkah demi Langkah</h1>
+    <p>Panduan ini untuk siapa saja, bahkan yang baru pertama kali. Tidak perlu install apa pun.</p>
+  </div>
+
+  <nav class="toc">
+    <a href="#apa">Apa ini?</a>
+    <a href="#cepat">Mulai cepat</a>
+    <a href="#dokumen">Pilih dokumen</a>
+    <a href="#isi">Isi data</a>
+    <a href="#pratinjau">Pratinjau</a>
+    <a href="#cetak">Cetak &amp; unduh</a>
+    <a href="#blangko">Atur blangko</a>
+    <a href="#edit">Ubah tata letak</a>
+    <a href="#admin">Untuk pengelola</a>
+    <a href="#aman">Keamanan data</a>
+    <a href="#faq">Tanya-jawab</a>
+  </nav>
+
+  <section class="gsec" id="apa">
+    <h2><span class="n">?</span> Apa ini?</h2>
+    <p>Ini alat untuk membuat dokumen resmi (<b>Ijazah</b>, <b>SKHU</b>, <b>Nilai Ijazah</b>) secara cepat:
+       Anda cukup memasukkan data santri, lalu aplikasi menata teksnya pada posisi yang benar untuk
+       <b>dicetak di atas blangko asli</b>. Hasilnya bisa langsung <b>dicetak</b> atau diunduh sebagai
+       <b>PDF</b> / <b>Word</b>.</p>
+    <div class="note">🔒 Semua proses terjadi di HP/komputer Anda. Data <b>tidak dikirim ke server</b> dan
+      <b>tersimpan otomatis</b> di perangkat ini — aman bila tidak sengaja ter-refresh.</div>
+  </section>
+
+  <section class="gsec" id="cepat">
+    <h2><span class="n">⚡</span> Mulai cepat (3 langkah)</h2>
+    <ol>
+      <li><b>Pilih dokumen</b> di bar atas (mis. <span class="key g">Ijazah</span>).</li>
+      <li><b>Isi data</b> — lewat <span class="key g">✍️ Input Manual</span> (ketik satu per satu) atau
+        <span class="key g">📥 Upload Excel</span> (banyak data sekaligus).</li>
+      <li><b>Cetak</b> dengan <span class="key">🖨️ Print</span>, atau unduh
+        <span class="key g">⬇️ PDF</span> / <span class="key g">⬇️ Word</span>.</li>
+    </ol>
+    <p>Selesai! Detail tiap langkah ada di bawah.</p>
+  </section>
+
+  <section class="gsec" id="dokumen">
+    <h2><span class="n">1</span> Memilih dokumen</h2>
+    <p>Di bagian <b>📁 Dokumen</b> (atas), klik salah satu: <span class="key g">Ijazah</span>,
+       <span class="key g">SKHU</span>, atau <span class="key g">Nilai Ijazah</span>.</p>
+    <div class="note">Setiap dokumen punya datanya <b>sendiri-sendiri</b>. Data di Ijazah tidak tercampur
+      dengan SKHU. Anda bisa bolak-balik tanpa kehilangan data.</div>
+    <p>Di bawahnya ada papan info: <b>Dokumen</b> aktif, <b>Data siap</b> (jumlah), <b>Ukuran</b> halaman,
+       dan status <b>Tersimpan</b>.</p>
+  </section>
+
+  <section class="gsec" id="isi">
+    <h2><span class="n">2</span> Mengisi data</h2>
+    <p>Ada dua cara. Pilih salah satu lewat dua tab: <span class="key g">📥 Upload Excel</span> atau
+       <span class="key g">✍️ Input Manual</span>.</p>
+
+    <h3>A. Input Manual (ketik langsung)</h3>
+    <ol>
+      <li>Klik tab <span class="key g">✍️ Input Manual</span>.</li>
+      <li>Isi kolom (Nama, Nomor, dll). <b>Pratinjau di kanan otomatis ikut berubah</b> saat Anda mengetik.</li>
+      <li>Kalau sudah cocok, klik <span class="key">➕ Tambah ke daftar</span>.</li>
+      <li>Muncul kotak <b>Beri nama data</b> (otomatis terisi dari Nama, boleh diubah) → klik
+        <span class="key">💾 Simpan</span>. Data masuk ke <b>Daftar data</b>.</li>
+      <li>Ulangi untuk santri berikutnya. Form otomatis dikosongkan.</li>
+    </ol>
+    <div class="note">Ketikan yang <b>belum</b> ditambahkan pun ikut tersimpan — kalau ter-refresh, tidak hilang.</div>
+
+    <h3>B. Upload Excel (banyak data sekaligus)</h3>
+    <ol>
+      <li>Klik tab <span class="key g">📥 Upload Excel</span>.</li>
+      <li>Belum punya file? Unduh contohnya dulu:
+        <ul>
+          <li><span class="key g">⬇️ Format Kosong</span> — hanya judul kolom, siap Anda isi.</li>
+          <li><span class="key g">⬇️ Contoh Pengisian</span> — sudah berisi 30 baris contoh sebagai panduan.</li>
+        </ul>
+      </li>
+      <li>Isi file Excel itu (jangan ubah nama kolom di baris pertama), simpan.</li>
+      <li>Klik kotak <b>“Klik untuk pilih file Excel”</b> lalu pilih file <b>.xlsx</b> Anda.</li>
+      <li>Muncul status hijau <b>“✅ N data terbaca”</b> dan semua data masuk ke daftar.</li>
+    </ol>
+
+    <h3>Mengelola Daftar data</h3>
+    <ul>
+      <li>Klik salah satu baris untuk <b>melihatnya di pratinjau</b>.</li>
+      <li>Tombol <span class="key g">✕</span> di tiap baris = <b>hapus satu</b> data itu saja.</li>
+      <li><span class="key g">🗑️ Kosongkan</span> = <b>hapus semua</b> data di dokumen ini.</li>
+    </ul>
+  </section>
+
+  <section class="gsec" id="pratinjau">
+    <h2><span class="n">3</span> Pratinjau (panel kanan)</h2>
+    <p>Panel kanan menampilkan <b>persis seperti hasil cetak</b>: teks di atas gambar blangko.
+       Gunakan <span class="key g">◀</span> dan <span class="key g">▶</span> untuk berpindah antar data.
+       Angka di tengah (mis. <b>3 / 30</b>) menunjukkan data ke berapa.</p>
+    <div class="note">Gambar blangko hanya untuk <b>pratinjau</b>. Saat dicetak/diunduh, file berisi
+      <b>teks saja</b> supaya pas dicetak di atas blangko asli.</div>
+  </section>
+
+  <section class="gsec" id="cetak">
+    <h2><span class="n">4</span> Mencetak &amp; mengunduh</h2>
+    <p>Di atas pratinjau ada 3 kelompok tombol. Tiap kelompok punya <b>ini</b> (hanya data yang sedang
+       tampil) dan <b>semua</b> (seluruh daftar).</p>
+    <table class="gtable">
+      <tr><th>Tombol</th><th>Fungsi</th></tr>
+      <tr><td><span class="key">🖨️ Print</span> ini / semua</td><td>Langsung membuka <b>dialog cetak</b> di browser. Paling praktis untuk mencetak.</td></tr>
+      <tr><td><span class="key g">⬇️ PDF</span> ini / semua</td><td>Unduh file <b>PDF</b> (untuk dicetak nanti atau diarsip).</td></tr>
+      <tr><td><span class="key g">⬇️ Word</span> ini / semua</td><td>Unduh file <b>Word (.docx)</b> bila ingin diedit di Microsoft Word.</td></tr>
+    </table>
+    <div class="note warn">Tombol akan <b>nonaktif</b> bila belum ada data. Isi data dulu ya.</div>
+  </section>
+
+  <section class="gsec" id="blangko">
+    <h2><span class="n">5</span> Mengatur tampilan blangko</h2>
+    <p>Buka <span class="key g">⚙️ Pengaturan lanjutan</span> (di bawah daftar). Di sana:</p>
+    <ul>
+      <li><b>Tampilkan blangko di pratinjau</b> — centang/lepas untuk menampilkan/menyembunyikan gambar blangko.</li>
+      <li><b>Ganti background blangko</b> — pakai gambar blangko Anda sendiri <b>untuk pratinjau di perangkat ini</b>
+        (memudahkan menyamakan posisi). Ini tidak mengubah milik orang lain.</li>
+      <li><span class="key g">↩️ Reset background</span> — kembalikan ke blangko bawaan.</li>
+    </ul>
+  </section>
+
+  <section class="gsec" id="edit">
+    <h2><span class="n">6</span> Mengubah tata letak (opsional)</h2>
+    <p>Kalau posisi teks perlu digeser, klik <span class="key g">✏️ Aktifkan Edit</span> di atas pratinjau.
+       Saat edit aktif, pratinjau menampilkan <b>contoh data terisi</b> supaya mudah menilai posisi &amp; font.</p>
+    <ul>
+      <li><b>Geser</b> teks dengan menyeret, atau pilih lalu pakai <b>tombol panah</b> untuk geser halus.</li>
+      <li>Atur <b>font, ukuran, tebal/miring, rata, warna</b>, dan posisi <b>X/Y</b> pada panel edit.</li>
+      <li><span class="key g">📐 Ukuran halaman</span> — ganti A4/Letter/F4.</li>
+      <li><span class="key g">💾 Simpan Default</span> — simpan tata letak <b>di browser ini saja</b>.</li>
+      <li><span class="key g">↩️ Reset Default</span> — kembalikan ke tata letak bawaan.</li>
+    </ul>
+    <div class="note">Kalau kolom input manual digeser urutannya akan menyesuaikan posisi atas→bawah secara otomatis.</div>
+  </section>
+
+  <section class="gsec" id="admin">
+    <h2><span class="n">🔑</span> Untuk pengelola (admin)</h2>
+    <p>Hanya pengelola yang memegang sandi yang bisa <b>mengubah tampilan untuk semua pengunjung</b>.</p>
+    <ol>
+      <li>Klik <b>logo</b> di kiri atas → masukkan sandi. Bila berhasil, logo bercincin hijau.</li>
+      <li>Masuk <span class="key g">✏️ Aktifkan Edit</span>, atur tata letak / ukuran, lalu klik
+        <span class="key">🌐 Simpan Global</span> → berlaku untuk <b>semua orang</b> &amp; tersimpan otomatis.</li>
+      <li><span class="key g">🖼️ Ganti blangko</span> — unggah gambar blangko baru untuk semua pengunjung.</li>
+    </ol>
+    <div class="note">Bagi pengunjung biasa, tombol ini tidak muncul — jadi <b>template resmi tetap aman</b>.</div>
+  </section>
+
+  <section class="gsec" id="aman">
+    <h2><span class="n">🛡️</span> Keamanan &amp; data tersimpan</h2>
+    <ul>
+      <li><b>Data tidak dikirim ke server.</b> Semua diproses di perangkat Anda (lihat lencana
+        <span class="key g">🔒 Data lokal — aman</span>).</li>
+      <li><b>Tersimpan otomatis</b> di browser ini. Refresh atau internet putus tidak menghilangkan data.</li>
+      <li>Data tiap dokumen terpisah dan hanya ada di perangkat Anda.</li>
+    </ul>
+    <div class="note warn">Catatan: karena tersimpan di browser, data tidak otomatis pindah ke HP/komputer lain.
+      Untuk memindahkan, unduh PDF/Word atau pakai file Excel.</div>
+  </section>
+
+  <section class="gsec" id="faq">
+    <h2><span class="n">💬</span> Tanya-jawab singkat</h2>
+    <details><summary>Kenapa hasil cetak hanya teks, tanpa gambar blangko?</summary>
+      <p>Memang sengaja. Dokumen dicetak di atas <b>blangko asli</b> yang sudah ada kop/logonya, jadi file
+        hanya berisi teks agar pas. Gambar di pratinjau cuma alat bantu posisi.</p></details>
+    <details><summary>Excel saya tidak terbaca / kolom kurang.</summary>
+      <p>Pastikan <b>nama kolom</b> di baris pertama sama persis dengan contoh. Paling mudah: unduh
+        <span class="key g">⬇️ Format Kosong</span> lalu isi di situ.</p></details>
+    <details><summary>Tombol Print/PDF/Word tidak bisa diklik.</summary>
+      <p>Tombol nonaktif bila <b>belum ada data</b>. Tambahkan minimal satu data dulu.</p></details>
+    <details><summary>Saya sudah mengetik banyak lalu halaman ke-refresh — hilang?</summary>
+      <p>Tidak. Data &amp; ketikan tersimpan otomatis dan akan <b>kembali</b> saat halaman dibuka lagi
+        di perangkat yang sama.</p></details>
+    <details><summary>Perubahan yang saya buat tidak muncul di HP lain.</summary>
+      <p>Penyimpanan bersifat per-perangkat. Untuk berbagi, kirim hasil PDF/Word, atau gunakan akun admin
+        untuk menyimpan tata letak secara global.</p></details>
+  </section>
+
+  <div style="text-align:center;margin-top:24px">
+    <a class="btn primary" href="index.html">← Kembali &amp; mulai membuat dokumen</a>
+    <p style="color:var(--muted);font-size:13px;margin-top:14px">
+      Butuh bantuan? <a href="https://wa.me/6285133469352" target="_blank" rel="noopener noreferrer" style="color:#bff7d6">💬 Hubungi kami via WhatsApp</a>
+    </p>
+  </div>
+
+</main>
+</body>
+</html>
