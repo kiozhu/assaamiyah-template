@@ -126,13 +126,22 @@
       <button id="saveDefault" class="btn ghost hidden" title="Simpan ke browser ini saja">💾 Simpan Default</button>
       <button id="saveGlobal" class="btn primary hidden" title="Simpan untuk SEMUA pengunjung (perlu login admin)">🌐 Simpan Global</button>
       <button id="resetDefault" class="btn ghost hidden">↩️ Reset Default</button>
-      <span style="flex:1"></span>
-      <button id="printOne" class="btn primary">🖨️ Print (ini)</button>
-      <button id="printAll" class="btn primary">🖨️ Print (semua)</button>
-      <button id="dlPdfOne" class="btn ghost">⬇️ PDF (ini)</button>
-      <button id="dlPdfAll" class="btn ghost">⬇️ PDF (semua)</button>
-      <button id="dlDocxOne" class="btn ghost">⬇️ Word (ini)</button>
-      <button id="dlDocxAll" class="btn ghost">⬇️ Word (semua)</button>
+      <span class="tb-spacer"></span>
+      <div class="out-group primary" title="Cetak langsung">
+        <span class="out-label">🖨️ Print</span>
+        <button id="printOne" class="btn primary xs">ini</button>
+        <button id="printAll" class="btn primary xs">semua</button>
+      </div>
+      <div class="out-group" title="Unduh PDF (teks untuk dicetak di atas blangko)">
+        <span class="out-label">⬇️ PDF</span>
+        <button id="dlPdfOne" class="btn ghost xs">ini</button>
+        <button id="dlPdfAll" class="btn ghost xs">semua</button>
+      </div>
+      <div class="out-group" title="Unduh Word (.docx)">
+        <span class="out-label">⬇️ Word</span>
+        <button id="dlDocxOne" class="btn ghost xs">ini</button>
+        <button id="dlDocxAll" class="btn ghost xs">semua</button>
+      </div>
     </div>
 
     <div id="editPanel" class="edit-panel hidden">
