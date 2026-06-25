@@ -41,7 +41,20 @@ const OV = (k) => 'tpl_override_' + k;
 
 const $ = (s) => document.querySelector(s);
 const reqKeys = () => coord.fields.filter(f => f.isField && f.key).map(f => f.key);
-const uniqueFieldKeys = () => [...new Set(reqKeys())];
+// Key unik diurutkan mengikuti posisi placeholder di pratinjau: atas -> bawah
+// (baseline kecil = lebih atas), lalu kiri -> kanan (x) untuk yang sebaris.
+// Efek: placeholder baru otomatis menempati urutan sesuai letaknya di blangko,
+// bukan selalu jadi kolom terakhir — konsisten untuk Excel & input manual.
+function uniqueFieldKeys() {
+  const pos = new Map();   // key -> posisi kemunculan paling atas
+  coord.fields.forEach(f => {
+    if (!f.isField || !f.key) return;
+    const b = +f.baseline || 0, x = +f.x || 0;
+    const prev = pos.get(f.key);
+    if (!prev || b < prev.b || (b === prev.b && x < prev.x)) pos.set(f.key, { b, x });
+  });
+  return [...pos.entries()].sort((a, c) => a[1].b - c[1].b || a[1].x - c[1].x).map(e => e[0]);
+}
 
 /* ---------------- init ---------------- */
 async function init() {
