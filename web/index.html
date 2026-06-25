@@ -36,7 +36,6 @@
   </div>
   <div class="header-right ed-nav" style="display:flex;align-items:center;gap:10px">
     <a class="btn ghost sm" href="editor.html">🎨 Editor Template</a>
-    <button id="adminBtn" class="btn ghost sm" title="Login admin untuk menyimpan default global">🔑 Admin</button>
     <span class="pill secure" title="Semua proses di browser. Tidak ada data yang dikirim ke server.">🔒 Data lokal — aman</span>
   </div>
 </header>
@@ -155,6 +154,20 @@
         <input id="epColor" type="color" title="Warna">
       </span>
       <span class="ep-pos">x<input id="epX" type="number" step="1"> y<input id="epY" type="number" step="1"></span>
+    </div>
+
+    <div id="tplSettings" class="tpl-settings hidden">
+      <label class="ts-field">📐 Ukuran halaman
+        <select id="edPageSize">
+          <option value="">— sesuai template —</option>
+          <option value="595.28x841.89">A4 Potret</option>
+          <option value="841.89x595.28">A4 Lanskap</option>
+          <option value="612x792">Letter</option>
+          <option value="935.43x612.28">F4 / Folio</option>
+        </select>
+      </label>
+      <label class="btn ghost xs" for="edBgFile" title="Unggah gambar blangko baru (perlu login admin)">🖼️ Ganti blangko</label>
+      <input id="edBgFile" type="file" accept="image/*" hidden>
     </div>
 
     <div class="stage">

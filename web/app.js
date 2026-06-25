@@ -131,14 +131,18 @@ function bindStatic() {
   $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
   $('#nameModal').onclick = (e) => { if (e.target.id === 'nameModal') closeNameModal(); };
 
-  // --- admin (simpan default global) ---
+  // --- admin tersembunyi: klik LOGO untuk login / keluar ---
   adminToken = sessionStorage.getItem('admin_token') || null;
-  $('#adminBtn').onclick = () => { if (adminToken) adminLogout(); else openAdminModal(); };
+  const logo = $('#brandLogo');
+  if (logo) logo.onclick = () => { if (adminToken) { if (confirm('Keluar dari mode admin?')) adminLogout(); } else openAdminModal(); };
   $('#adminLoginBtn').onclick = doAdminLogin;
   $('#adminCancel').onclick = closeAdminModal;
   $('#adminPass').onkeydown = (e) => { if (e.key === 'Enter') doAdminLogin(); else if (e.key === 'Escape') closeAdminModal(); };
   $('#adminModal').onclick = (e) => { if (e.target.id === 'adminModal') closeAdminModal(); };
   $('#saveGlobal').onclick = saveDefaultGlobal;
+  // pengaturan template (mode edit): ukuran halaman + ganti blangko
+  $('#edPageSize').onchange = onPageSize;
+  $('#edBgFile').onchange = onChangeBg;
   updateAdminUI();
   $('#clearRecords').onclick = () => { records = []; cur = 0; refreshRecords(); renderPreview(); };
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
@@ -376,6 +380,8 @@ function setEditMode(on) {
   $('#editToggle').textContent = on ? '✓ Mode Edit Aktif' : '✏️ Aktifkan Edit';
   ['saveDefault', 'resetDefault'].forEach(id => $('#' + id).classList.toggle('hidden', !on));
   $('#editPanel').classList.toggle('hidden', !on);
+  $('#tplSettings').classList.toggle('hidden', !on);
+  if (on) syncPageSizeSelect();
   updateAdminUI();                         // tombol "Simpan Global" ikut mode edit + status admin
   if (on) selectField(-1);
   renderPreview();
@@ -440,8 +446,8 @@ async function resetDefaultTpl() {
 /* ---------------- admin: simpan default global ---------------- */
 function updateAdminUI() {
   const on = !!adminToken;
-  const b = $('#adminBtn');
-  if (b) { b.textContent = on ? '🔓 Admin aktif' : '🔑 Admin'; b.classList.toggle('on', on); b.title = on ? 'Klik untuk keluar admin' : 'Login admin untuk menyimpan default global'; }
+  const logo = $('#brandLogo');
+  if (logo) logo.classList.toggle('admin-on', on);            // cincin hijau saat admin aktif
   const sg = $('#saveGlobal');
   if (sg) sg.classList.toggle('hidden', !(editMode && on));   // hanya saat mode edit + admin
 }
@@ -487,6 +493,57 @@ async function saveDefaultGlobal() {
     }
   } catch (e) { alert('❌ Gagal menghubungi server: ' + e.message); }
   finally { sg.disabled = false; sg.textContent = t0; }
+}
+
+/* ---------------- pengaturan template: ukuran halaman & blangko ---------------- */
+function syncPageSizeSelect() {
+  const sel = $('#edPageSize'); if (!sel || !coord) return;
+  const v = (Math.round(coord.page.w * 100) / 100) + 'x' + (Math.round(coord.page.h * 100) / 100);
+  sel.value = [...sel.options].some(o => o.value === v) ? v : '';
+}
+function onPageSize(e) {
+  const v = e.target.value; if (!v) return;
+  const [w, h] = v.split('x').map(Number);
+  if (!w || !h) return;
+  coord.page.w = w; coord.page.h = h;          // tersimpan saat "Simpan Default"/"Simpan Global"
+  renderPreview(); fitPage();
+}
+// Re-encode gambar apa pun jadi JPEG (batasi dimensi & kompres) supaya ukuran terkendali.
+function imageToJpegBlob(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth, h = img.naturalHeight;
+      const s = Math.min(1, maxDim / Math.max(w, h));
+      w = Math.round(w * s); h = Math.round(h * s);
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      cv.toBlob(b => b ? resolve(b) : reject(new Error('encode gagal')), 'image/jpeg', quality);
+    };
+    img.onerror = () => reject(new Error('gambar tidak valid'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+async function onChangeBg(e) {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  if (!adminToken) { openAdminModal(); return; }       // ganti blangko = aksi admin
+  try {
+    const blob = await imageToJpegBlob(file, 2200, 0.85);
+    if (blob.size > 6 * 1024 * 1024) return alert('Gambar terlalu besar. Pakai gambar yang lebih kecil.');
+    const r = await fetch('/admin/save-bg?key=' + encodeURIComponent(TKEY), {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + adminToken, 'Content-Type': 'image/jpeg' }, body: blob,
+    });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) {
+      coord.background = 'assets/blangko/' + TKEY + '.jpg';
+      bgUrl = coord.background + '?v=' + Date.now();      // bust cache pratinjau
+      showBg = true; if ($('#showBg')) $('#showBg').checked = true;
+      renderPreview();
+      alert('✅ Blangko diperbarui untuk semua pengunjung.\nGitHub: ' + (j.git || '-'));
+    } else if (r.status === 401) { adminLogout(); openAdminModal(); }
+    else { alert('❌ Gagal: ' + (j.error || ('HTTP ' + r.status))); }
+  } catch (err) { alert('❌ Gagal memproses gambar: ' + err.message); }
 }
 function addElementFront(isField) {
   let key = '', text = '';

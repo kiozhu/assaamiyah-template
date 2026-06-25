@@ -198,6 +198,15 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
 .modal-msg.err{color:#ff9b9b}
 .modal-msg.ok{color:#bff7d6}
 
+/* panel pengaturan template (mode edit): ukuran halaman + ganti blangko */
+.tpl-settings{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:8px 0 2px;padding:9px 11px;
+  border:1px solid var(--brd);border-radius:11px;background:var(--glass);font-size:12.5px}
+.tpl-settings.hidden{display:none}
+.ts-field{display:flex;align-items:center;gap:7px;color:var(--muted);font-family:var(--display)}
+.ts-field select{padding:6px 9px;border:1px solid var(--brd);border-radius:8px;background:var(--glass-2);color:var(--ink);font-size:12.5px}
+/* logo sebagai pemicu admin tersembunyi: tanpa petunjuk mencolok; cincin saat aktif */
+.brand-logo.admin-on{box-shadow:0 0 0 2px var(--green-2),0 0 16px rgba(21,214,126,.55)}
+
 /* ===== input manual: aksi & pratinjau ===== */
 .manual-actions{display:flex;gap:8px;margin-top:6px}
 .manual-actions .btn.primary{flex:1}

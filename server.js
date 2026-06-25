@@ -153,21 +153,55 @@ function handleSaveDefault(req, res) {
     try { fs.writeFileSync(tmp, out, { mode: 0o644 }); fs.renameSync(tmp, target); }
     catch (e) { try { fs.unlinkSync(tmp); } catch {} return sendJson(res, 500, { ok: false, error: 'Gagal menyimpan' }); }
     // commit + push best-effort (tidak memengaruhi keberhasilan simpan)
-    gitCommitPush(key, (gitMsg) => sendJson(res, 200, { ok: true, git: gitMsg }));
+    gitCommitPush('web/templates/' + key + '.json', 'chore(template): update default ' + key + ' via admin web',
+      (gitMsg) => sendJson(res, 200, { ok: true, git: gitMsg }));
   });
 }
 
-function gitCommitPush(key, done) {
-  const rel = 'web/templates/' + key + '.json';
+function gitCommitPush(rel, msg, done) {
   const env = { ...process.env, PATH: '/usr/local/bin:/usr/bin:/bin', HOME: '/home/ubuntu', GIT_TERMINAL_PROMPT: '0' };
   const opt = { env, timeout: 25000 };
   execFile('git', ['-C', APP_DIR, 'add', rel], opt, (e1) => {
     if (e1) return done('git add gagal');
     execFile('git', ['-C', APP_DIR, '-c', 'user.name=Assaamiyah Admin', '-c', 'user.email=admin@assaamiyah.local',
-      'commit', '-m', 'chore(template): update default ' + key + ' via admin web'], opt, (e2) => {
+      'commit', '-m', msg], opt, (e2) => {
       if (e2) return done('tidak ada perubahan untuk di-commit');
       execFile('git', ['-C', APP_DIR, 'push', 'origin', 'HEAD'], opt, (e3) => done(e3 ? 'commit ok, push gagal' : 'commit & push ok'));
     });
+  });
+}
+
+// Baca body biner (untuk unggah gambar) dengan batas ukuran.
+function readRawBody(req, maxBytes, cb) {
+  const chunks = []; let len = 0, tooBig = false;
+  req.on('data', (c) => { len += c.length; if (len > maxBytes) { tooBig = true; req.destroy(); } else chunks.push(c); });
+  req.on('end', () => { if (tooBig) return cb(new Error('too big')); cb(null, Buffer.concat(chunks)); });
+  req.on('error', () => cb(new Error('read error')));
+}
+
+// Unggah gambar blangko (JPEG) -> timpa web/assets/blangko/<key>.jpg, lalu commit+push.
+function handleSaveBg(req, res) {
+  const auth = req.headers['authorization'] || '';
+  const tok = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!tokenOk(tok)) return sendJson(res, 401, { ok: false, error: 'Sesi admin tidak valid/kedaluwarsa. Login lagi.' });
+  let key = '';
+  try { key = new URL(req.url, 'http://x').searchParams.get('key') || ''; } catch {}
+  if (!ALLOWED_KEY.test(key) || !fs.existsSync(path.join(TEMPLATES_DIR, key + '.json'))) {
+    return sendJson(res, 400, { ok: false, error: 'Template tidak dikenal' });
+  }
+  readRawBody(req, 6 * 1024 * 1024, (err, buf) => {
+    if (err) return sendJson(res, 413, { ok: false, error: 'Gambar terlalu besar (maks 6MB)' });
+    if (buf.length < 3 || buf[0] !== 0xFF || buf[1] !== 0xD8 || buf[2] !== 0xFF) {
+      return sendJson(res, 400, { ok: false, error: 'Gambar harus berformat JPEG' });
+    }
+    const dir = path.join(ROOT, 'assets', 'blangko');
+    const target = path.join(dir, key + '.jpg');
+    if (!target.startsWith(dir + path.sep)) return sendJson(res, 400, { ok: false, error: 'Path tidak valid' });
+    const tmp = path.join(APP_DIR, '.bg_tmp_' + key + '.jpg');
+    try { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(tmp, buf); fs.renameSync(tmp, target); }
+    catch (e) { try { fs.unlinkSync(tmp); } catch {} return sendJson(res, 500, { ok: false, error: 'Gagal menyimpan' }); }
+    gitCommitPush('web/assets/blangko/' + key + '.jpg', 'chore(template): update background ' + key + ' via admin web',
+      (gitMsg) => sendJson(res, 200, { ok: true, git: gitMsg }));
   });
 }
 
@@ -177,6 +211,7 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST') {
     if (req.url === '/admin/login') return handleLogin(req, res);
     if (req.url === '/admin/save-default') return handleSaveDefault(req, res);
+    if (req.url.startsWith('/admin/save-bg')) return handleSaveBg(req, res);
     return deny(res, 404, 'Not Found');
   }
 

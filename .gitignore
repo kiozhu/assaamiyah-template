@@ -2,6 +2,7 @@
 .env
 .admin_secret
 .tpl_tmp_*.json
+.bg_tmp_*.jpg
 data/work/
 data/*.xlsx
 data/*.docx
