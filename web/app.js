@@ -392,11 +392,16 @@ function renderPreview() {
 }
 function fitPage() {
   const stage = document.querySelector('.stage');
+  const cs = getComputedStyle(stage);
+  const avail = stage.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0);
   const w = coord.page.w * PT, h = coord.page.h * PT;
-  const scale = Math.min(1, (stage.clientWidth - 36) / w);
+  const scale = Math.min(1, avail > 0 ? avail / w : 1);
   previewScale = scale;
   const page = $('#page');
+  page.style.transformOrigin = 'top left';
   page.style.transform = `scale(${scale})`;
+  // transform tidak mengubah ukuran layout -> kompensasi lebar & tinggi agar tidak meluber di HP
+  page.style.marginRight = (w * (scale - 1)) + 'px';
   page.style.marginBottom = (h * (scale - 1)) + 'px';
 }
 
