@@ -148,6 +148,7 @@ function bindStatic() {
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
   $('#bgImage').onchange = onBg;
+  $('#resetBg').onclick = resetBg;
   $('#showBg').onchange = (e) => { showBg = e.target.checked; renderPreview(); };
   $('#dlPdfOne').onclick = () => makePdf(false);
   $('#dlPdfAll').onclick = () => makePdf(true);
@@ -571,6 +572,13 @@ function deleteSelField() {
 function onBg(e) {
   const file = e.target.files[0]; if (!file) return;
   const r = new FileReader(); r.onload = () => { bgUrl = r.result; renderPreview(); }; r.readAsDataURL(file);
+}
+// Kembalikan background pratinjau ke blangko default template (batalkan ganti lokal).
+function resetBg() {
+  bgUrl = coord.background || null;
+  const bi = $('#bgImage'); if (bi) bi.value = '';
+  showBg = true; if ($('#showBg')) $('#showBg').checked = true;
+  renderPreview();
 }
 
 /* ---------------- PDF ---------------- */

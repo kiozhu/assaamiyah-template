@@ -35,7 +35,6 @@
     </div>
   </div>
   <div class="header-right ed-nav" style="display:flex;align-items:center;gap:10px">
-    <a class="btn ghost sm" href="editor.html">🎨 Editor Template</a>
     <span class="pill secure" title="Semua proses di browser. Tidak ada data yang dikirim ke server.">🔒 Data lokal — aman</span>
   </div>
 </header>
@@ -103,8 +102,9 @@
         <span>Ganti background blangko (opsional)</span>
         <input type="file" id="bgImage" accept="image/*">
       </label>
-      <p class="hint">Blangko hanya untuk pratinjau (WYSIWYG). <b>Tidak ikut tercetak</b> —
-        PDF berisi teks saja untuk dicetak di atas blangko asli.</p>
+      <button id="resetBg" class="btn ghost xs">↩️ Reset background (kembali ke bawaan)</button>
+      <p class="hint">Blangko hanya untuk pratinjau (WYSIWYG) <b>di perangkat ini</b>. <b>Tidak ikut tercetak</b> —
+        PDF berisi teks saja untuk dicetak di atas blangko asli. <b>Reset</b> mengembalikan ke blangko default.</p>
     </details>
   </section>
 
@@ -182,7 +182,7 @@
   <img class="foot-logo" src="assets/logo.jpg" alt="">
   <div>
     <b>MDTU As'saamiyah</b> — Madrasah Diniyah Takmiliyah Ula<br>
-    <span class="muted">Dibuat sebagai percontohan madrasah modern · Desa Pabean Udik, Kec. Indramayu</span>
+    <span class="muted">Desa Pabean Udik, Kec. Indramayu</span>
   </div>
   <div class="foot-badge">🔒 Data tidak dikirim ke server</div>
 </footer>
