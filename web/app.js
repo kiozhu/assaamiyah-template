@@ -329,6 +329,17 @@ function recordName(r, i) {
   const firstVal = Object.entries(r).find(([k, v]) => k !== '__label' && v != null && String(v).trim() !== '');
   return r.Nama_Lengkap || r.Nama || (firstVal ? firstVal[1] : null) || `(data ${i + 1})`;
 }
+function pageSizeLabel() {
+  if (!coord || !coord.page) return '—';
+  const w = Math.round(coord.page.w * 100) / 100, h = Math.round(coord.page.h * 100) / 100;
+  const presets = { '595.28x841.89': 'A4 Potret', '841.89x595.28': 'A4 Lanskap', '612x792': 'Letter', '935.43x612.28': 'F4/Folio' };
+  return presets[w + 'x' + h] || (Math.round(w) + '×' + Math.round(h) + ' pt');
+}
+function updateStats() {
+  const t = $('#statTpl'); if (t) t.textContent = (coord && coord.name) || TKEY || '—';
+  const s = $('#statSize'); if (s) s.textContent = pageSizeLabel();
+  const c = $('#statCount'); if (c) c.textContent = String(records.length);
+}
 function refreshRecords() {
   manualPreview = null;                                   // keluar dari mode pratinjau manual
   const note = $('#manualPreviewNote'); if (note) note.classList.add('hidden');
@@ -351,8 +362,11 @@ function refreshRecords() {
     ol.appendChild(li);
   });
   const has = records.length > 0;
+  const empty = $('#recordsEmpty'); if (empty) empty.classList.toggle('hidden', has);
+  $('#recordList').style.display = has ? '' : 'none';
   $('#navLabel').textContent = has ? `${cur + 1} / ${records.length}` : '— / —';
   ['printOne', 'printAll', 'dlPdfOne', 'dlPdfAll', 'dlDocxOne', 'dlDocxAll', 'prev', 'next'].forEach(id => $('#' + id).disabled = !has);
+  updateStats();
 }
 // Hapus satu data dari daftar (bukan kosongkan semua).
 function deleteRecord(i) {
@@ -558,7 +572,7 @@ function onPageSize(e) {
   const [w, h] = v.split('x').map(Number);
   if (!w || !h) return;
   coord.page.w = w; coord.page.h = h;          // tersimpan saat "Simpan Default"/"Simpan Global"
-  renderPreview(); fitPage();
+  renderPreview(); fitPage(); updateStats();
 }
 // Re-encode gambar apa pun jadi JPEG (batasi dimensi & kompres) supaya ukuran terkendali.
 function imageToJpegBlob(file, maxDim, quality) {

@@ -51,6 +51,13 @@
 </div>
 <div id="tplNotice" class="tpl-notice hidden"></div>
 
+<div class="stat-bar reveal">
+  <span class="stat"><span class="stat-ic">📋</span><span class="stat-t"><span class="stat-k">Dokumen</span><b id="statTpl">—</b></span></span>
+  <span class="stat"><span class="stat-ic">🧾</span><span class="stat-t"><span class="stat-k">Data siap</span><b id="statCount">0</b></span></span>
+  <span class="stat"><span class="stat-ic">📐</span><span class="stat-t"><span class="stat-k">Ukuran</span><b id="statSize">—</b></span></span>
+  <span class="stat"><span class="stat-ic">💾</span><span class="stat-t"><span class="stat-k">Tersimpan</span><b>Otomatis · Lokal</b></span></span>
+</div>
+
 <main>
   <!-- ============ KIRI: INPUT ============ -->
   <section class="card input reveal">
@@ -92,6 +99,11 @@
         <button id="clearRecords" class="btn ghost xs">🗑️ Kosongkan</button>
       </div>
       <ol id="recordList"></ol>
+      <div id="recordsEmpty" class="records-empty">
+        <div class="re-ic">🗂️</div>
+        <p>Belum ada data</p>
+        <span>Upload Excel atau isi manual, lalu “➕ Tambah ke daftar”.</span>
+      </div>
     </div>
 
     <details class="adv">

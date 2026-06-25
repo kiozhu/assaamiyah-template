@@ -68,7 +68,7 @@ main .preview.reveal{animation-delay:.28s}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,174,95,.45)}70%{box-shadow:0 0 0 12px rgba(31,174,95,0)}100%{box-shadow:0 0 0 0 rgba(31,174,95,0)}}
 
 /* ===== Hero ===== */
-.hero{text-align:center;padding:46px 20px 10px}
+.hero{text-align:center;padding:32px 20px 6px}
 .hero h1{margin:0;font-family:var(--display);font-size:42px;font-weight:700;letter-spacing:-1px;
   background:linear-gradient(100deg,#eafff3 0%,#36e08f 40%,#19c9b0 60%,#e7c766 100%);
   background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
@@ -95,7 +95,17 @@ main .preview.reveal{animation-delay:.28s}
 .tpl-notice a{color:#bff7d6;font-weight:600}
 
 /* ===== Layout ===== */
-main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-width:1280px;margin:0 auto;align-items:start}
+main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px;max-width:1280px;margin:0 auto;align-items:stretch}
+.card.input{display:flex;flex-direction:column}
+/* info chips bar */
+.stat-bar{display:flex;flex-wrap:wrap;gap:10px;max-width:1280px;margin:14px auto 0;padding:0 24px}
+.stat{display:flex;align-items:center;gap:11px;flex:1 1 180px;background:var(--glass);border:1px solid var(--brd);
+  border-radius:14px;padding:10px 14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.stat-ic{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:10px;font-size:16px;
+  background:rgba(31,174,95,.14);border:1px solid rgba(31,174,95,.25)}
+.stat-t{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.stat-k{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-family:var(--display)}
+.stat-t b{font-family:var(--display);font-size:14px;color:#eafff3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card{position:relative;background:var(--glass);backdrop-filter:blur(16px) saturate(130%);
   -webkit-backdrop-filter:blur(16px) saturate(130%);
   border:1px solid var(--brd);border-radius:var(--radius);padding:20px;
@@ -165,10 +175,16 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
 .muted{color:var(--muted)}
 
 /* ===== records ===== */
-.records{margin-top:18px;border-top:1px solid var(--brd);padding-top:14px}
-.records-head{display:flex;align-items:center;gap:8px}
+.records{margin-top:18px;border-top:1px solid var(--brd);padding-top:14px;flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.records-head{display:flex;align-items:center;gap:8px;flex:none}
 .records-head .btn{margin-left:auto}
-#recordList{margin:11px 0 0;padding:0;list-style:none;max-height:60vh;overflow:auto}
+#recordList{margin:11px 0 0;padding:0;list-style:none;flex:1 1 auto;min-height:0;overflow:auto}
+.records-empty{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:6px;color:var(--muted);padding:22px 16px;min-height:140px}
+.records-empty.hidden{display:none}
+.records-empty .re-ic{font-size:34px;opacity:.65;filter:drop-shadow(0 0 10px rgba(31,174,95,.35))}
+.records-empty p{margin:0;font-family:var(--display);font-size:14.5px;color:var(--ink)}
+.records-empty span{font-size:12px;max-width:250px;line-height:1.5}
 #recordList li{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;font-size:13.5px;
   cursor:pointer;border:1px solid transparent;transition:.18s}
 #recordList li:before{content:"👤";font-size:13px;opacity:.6}
@@ -284,10 +300,12 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
 
 @media(max-width:920px){
   main{grid-template-columns:1fr;padding:18px;gap:18px}
-  .hero{padding:34px 18px 6px}
+  .hero{padding:26px 18px 4px}
   .hero h1{font-size:30px}
   .brand-sub{display:none}
-  .tpl-bar{padding:0 18px}
+  .tpl-bar,.stat-bar{padding:0 18px}
+  .records{flex:none}
+  #recordList{max-height:52vh}
 }
 @media(max-width:600px){
   .site-header{padding:11px 14px;gap:10px;flex-wrap:wrap}
@@ -300,6 +318,9 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
   main{padding:12px;gap:14px}
   .card{padding:14px;border-radius:14px}
   .tpl-bar{padding:0 13px;gap:8px;margin-top:10px}
+  .stat-bar{padding:0 13px;gap:8px}
+  .stat{flex:1 1 130px;padding:9px 11px}
+  #recordList{max-height:46vh}
   .stage{padding:10px}
   .tb-spacer{display:none}
   .out-group{flex:1 1 auto;justify-content:center}
