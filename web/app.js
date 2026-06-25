@@ -123,7 +123,8 @@ function bindStatic() {
     $('#tab-manual').classList.toggle('hidden', t.dataset.tab !== 'manual');
   });
   $('#excelFile').onchange = onExcel;
-  $('#sampleXlsx').onclick = downloadSample;
+  $('#sampleEmpty').onclick = () => downloadSample(false);
+  $('#sampleFilled').onclick = () => downloadSample(true);
   $('#addRecord').onclick = addManual;
   $('#previewManual').onclick = previewManual;
   $('#nameModalSave').onclick = confirmAddName;
@@ -674,13 +675,51 @@ async function makeDocx(all) {
 }
 
 /* ---------------- contoh Excel ---------------- */
-function downloadSample() {
+const SAMPLE_NAMES = ['Ahmad Fauzi', 'Siti Nurhaliza', 'Muhammad Rizki', 'Aisyah Putri', 'Abdul Rahman',
+  'Fatimah Zahra', 'Budi Santoso', 'Dewi Lestari', 'Yusuf Hidayat', 'Nur Aini', 'Hasan Basri',
+  'Khadijah Salma', 'Ali Akbar', 'Maryam Husna', 'Umar Faruq', 'Zainab Azzahra', 'Ibrahim Malik',
+  'Halimah Sadiyah', 'Usman Ghani', 'Rukayah Amani'];
+const SAMPLE_PARENTS = ['H. Sulaiman', 'Hj. Maemunah', 'Bapak Sukarno', 'Ibu Sutinah', 'H. Abdul Karim',
+  'Hj. Aminah', 'Bapak Carwadi', 'Ibu Rohmah', 'H. Tarmidzi', 'Hj. Sukaesih'];
+const SAMPLE_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const SAMPLE_HIJRI = ['Muharram', 'Shafar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqodah', 'Dzulhijjah'];
+const pad2 = (n) => String(n).padStart(2, '0');
+
+// Nilai contoh untuk satu field, bervariasi per baris (i). Field "tetap" pakai default.
+function exampleValue(key, meta, i) {
+  if (meta && meta.ask === false) return meta.default ?? '';
+  const k = key.toLowerCase();
+  if (/(orang_?tua|wali|ayah|ibu)/.test(k)) return SAMPLE_PARENTS[i % SAMPLE_PARENTS.length];
+  if (/kepala/.test(k)) return 'H. Abdullah, S.Pd.I';
+  if (/nama/.test(k)) return SAMPLE_NAMES[i % SAMPLE_NAMES.length];
+  if (/hijriah/.test(k)) return ((i % 29) + 1) + ' ' + SAMPLE_HIJRI[i % 12] + ' 1447';
+  if (/tanggal.*masehi|masehi/.test(k)) return 'Indramayu, 06 Juni 2026';
+  if (/ttl|tempat|lahir/.test(k)) return 'Indramayu, ' + pad2((i % 28) + 1) + ' ' + SAMPLE_MONTHS[i % 12] + ' ' + (2008 + (i % 5));
+  if (/tanggal/.test(k)) return pad2((i % 28) + 1) + '/' + pad2((i % 12) + 1) + '/2026';
+  if (/induk|nis/.test(k)) return '20' + String(2200 + i).padStart(6, '0');
+  if (/statistik/.test(k)) return '111233' + String(1001 + i).padStart(5, '0');
+  if (/no(mor|mer)?(_|\b)/.test(k)) return pad2(i + 1) + '/MDT/VII/2026';
+  if (/desa.*kecamatan|kecamatan.*desa/.test(k)) return 'Pabean Udik, Indramayu';
+  if (/desa/.test(k)) return 'Pabean Udik';
+  if (/kecamatan|kabupaten/.test(k)) return 'Indramayu';
+  if (/madrasah|sekolah/.test(k)) return "As'saamiyah";
+  if (/alamat/.test(k)) return 'Jl. Masjid No. ' + (i + 1) + ', Pabean Udik';
+  if (/nilai|skor|angka/.test(k)) return String(75 + (i % 21));
+  if (/tahun|ajaran/.test(k)) return '2025/2026';
+  return (meta && meta.label ? meta.label : key.replace(/_/g, ' ')) + ' ' + (i + 1);
+}
+
+// filled=false -> hanya header (format kosong). filled=true -> + 30 baris contoh terisi.
+function downloadSample(filled) {
   const keys = uniqueFieldKeys();
   if (!keys.length) { alert('Template ini belum punya field.'); return; }
-  const ws = XLSX.utils.aoa_to_sheet([keys, keys.map(k => '(' + k + ')')]);
+  const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
+  const rows = [keys];
+  if (filled) for (let i = 0; i < 30; i++) rows.push(keys.map(k => exampleValue(k, meta[k], i)));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (form.sheet || 'DATA').slice(0, 31));
-  XLSX.writeFile(wb, `contoh_${TKEY}.xlsx`);
+  XLSX.writeFile(wb, `${filled ? 'contoh_pengisian' : 'format_kosong'}_${TKEY}.xlsx`);
 }
 
 /* ---------------- util ---------------- */

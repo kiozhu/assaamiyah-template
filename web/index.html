@@ -68,7 +68,10 @@
         <span>Klik untuk pilih file Excel</span>
         <input type="file" id="excelFile" accept=".xlsx,.xlsm" hidden>
       </label>
-      <button id="sampleXlsx" class="btn ghost sm">⬇️ Unduh contoh Excel</button>
+      <div class="sample-btns">
+        <button id="sampleEmpty" class="btn ghost sm" title="Header kolom saja, siap Anda isi">⬇️ Format Kosong</button>
+        <button id="sampleFilled" class="btn ghost sm" title="Contoh 30 baris terisi otomatis">⬇️ Contoh Pengisian</button>
+      </div>
       <div id="excelStatus" class="status"></div>
     </div>
 
@@ -181,7 +184,7 @@
 <footer class="site-footer">
   <img class="foot-logo" src="assets/logo.jpg" alt="">
   <div>
-    <b>MDTU As'saamiyah</b> — Madrasah Diniyah Takmiliyah Ula<br>
+    <b>MDTU As'saamiyah</b><br>
     <span class="muted">Desa Pabean Udik, Kec. Indramayu</span>
   </div>
   <div class="foot-links">
