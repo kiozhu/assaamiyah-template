@@ -282,26 +282,22 @@ function reorderManualForm() {
 }
 // Baca isi form manual jadi satu objek record (+ kumpulan field "tetap").
 function readManualForm() {
-  const o = {}, consts = {};
-  $('#manualForm').querySelectorAll('input').forEach(inp => {
-    o[inp.dataset.key] = inp.value.trim();
-    if (inp.dataset.ask === '0') consts[inp.dataset.key] = inp.value.trim();
-  });
-  return { o, consts };
+  const o = {};
+  $('#manualForm').querySelectorAll('input').forEach(inp => { o[inp.dataset.key] = inp.value.trim(); });
+  return o;
 }
 // Klik "Tambah ke daftar": jangan langsung simpan — buka dialog beri nama dulu.
 function addManual() {
-  const { o, consts } = readManualForm();
-  pendingRecord = { o, consts };
+  pendingRecord = readManualForm();
   const inp = $('#nameModalInput');
-  inp.value = recordName(o, records.length);   // pra-isi dari nama yang sudah diketik
+  inp.value = recordName(pendingRecord, records.length);   // pra-isi dari nama yang sudah diketik
   $('#nameModal').classList.remove('hidden');
   inp.focus(); inp.select();
 }
 // Simpan data dari dialog (dengan nama yang diberikan) ke daftar.
 function confirmAddName() {
   if (!pendingRecord) return;
-  const { o, consts } = pendingRecord;
+  const o = pendingRecord;
   const name = $('#nameModalInput').value.trim();
   if (name) o.__label = name;                  // label tampilan di daftar (tidak ikut tercetak)
   records.push(o); cur = records.length - 1;
@@ -316,7 +312,7 @@ function closeNameModal() {
 }
 // Pratinjau data yang sedang diketik TANPA menambahkannya ke daftar.
 function previewManual() {
-  const { o } = readManualForm();
+  const o = readManualForm();
   manualPreview = o;
   draftByTpl[TKEY] = o; persist();             // simpan draft tiap ketik (anti-hilang)
   const note = $('#manualPreviewNote'); if (note) note.classList.remove('hidden');
