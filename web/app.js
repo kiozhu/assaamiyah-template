@@ -38,6 +38,7 @@ let adminToken = null;      // token sesi admin (di memori + sessionStorage)
 let bgUrl = null;
 let showBg = true;
 let editMode = false;
+let editSample = null;     // data contoh saat mode edit (agar tampil teks, bukan placeholder)
 let selIdx = -1;
 let previewScale = 1;
 let fdrag = null;
@@ -184,12 +185,12 @@ function bindStatic() {
   $('#epColor').oninput = e => updateSel('color', e.target.value);
   $('#epX').oninput = e => { updateSel('x', +e.target.value || 0); reorderManualForm(); };
   $('#epY').oninput = e => { updateSel('baseline', +e.target.value || 0); reorderManualForm(); };
-  $('#epBold').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.bold = !f.bold; $('#epBold').classList.toggle('on', f.bold); const d = selDiv(); if (d) styleTextEl(d, f, records[cur]); };
-  $('#epItalic').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.italic = !f.italic; $('#epItalic').classList.toggle('on', f.italic); const d = selDiv(); if (d) styleTextEl(d, f, records[cur]); };
+  $('#epBold').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.bold = !f.bold; $('#epBold').classList.toggle('on', f.bold); const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); };
+  $('#epItalic').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.italic = !f.italic; $('#epItalic').classList.toggle('on', f.italic); const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); };
   document.querySelectorAll('.epAl').forEach(b => b.onclick = () => {
     const f = coord.fields[selIdx]; if (!f) return; f.align = b.dataset.al;
     document.querySelectorAll('.epAl').forEach(x => x.classList.toggle('on', x === b));
-    const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+    const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
   });
   $('#page').addEventListener('pointerdown', ev => { if (editMode && (ev.target.id === 'page' || ev.target.classList.contains('bg'))) selectField(-1); });
   document.addEventListener('keydown', ev => {
@@ -201,7 +202,7 @@ function bindStatic() {
     if (ev.key === 'ArrowLeft') f.x -= step; else if (ev.key === 'ArrowRight') f.x += step;
     else if (ev.key === 'ArrowUp') f.baseline -= step; else if (ev.key === 'ArrowDown') f.baseline += step; else return;
     ev.preventDefault(); f.x = Math.round(f.x * 10) / 10; f.baseline = Math.round(f.baseline * 10) / 10;
-    const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+    const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
     $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
     reorderManualForm();
   });
@@ -363,12 +364,23 @@ function styleTextEl(div, fld, rec) {
   div.textContent = valueFor(fld, rec);
   if (!rec && fld.isField) div.style.color = editMode ? '#1f8fd0' : '#9fb0c0';
 }
+// Bangun 1 record contoh (semua field terisi) untuk mode edit.
+function sampleRecord() {
+  const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
+  const rec = {};
+  uniqueFieldKeys().forEach(k => rec[k] = exampleValue(k, meta[k], 0));
+  return rec;
+}
+// Record yang dipakai pratinjau: mode edit -> contoh terisi; selain itu -> data live/terpilih.
+function currentRec() {
+  return editMode ? editSample : (manualPreview || records[cur]);
+}
 function renderPreview() {
   const page = $('#page'); page.innerHTML = '';
   page.style.width = (coord.page.w * PT) + 'px';
   page.style.height = (coord.page.h * PT) + 'px';
   if (bgUrl && showBg) { const img = document.createElement('img'); img.className = 'bg'; img.src = bgUrl; page.appendChild(img); }
-  const rec = manualPreview || records[cur];
+  const rec = currentRec();
   coord.fields.forEach((fld, i) => {
     const div = document.createElement('div');
     div.className = 't' + (editMode ? ' editable' : '') + (i === selIdx ? ' sel-edit' : '');
@@ -391,6 +403,7 @@ function fitPage() {
 /* ---------------- edit di halaman depan ---------------- */
 function setEditMode(on) {
   editMode = on; selIdx = -1;
+  editSample = on ? sampleRecord() : null;   // tampilkan contoh terisi saat edit
   manualPreview = null;
   const note = $('#manualPreviewNote'); if (note) note.classList.add('hidden');
   $('#editToggle').classList.toggle('on', on);
@@ -423,7 +436,7 @@ function selectField(idx) {
 function selDiv() { return document.querySelector(`#page .t[data-idx="${selIdx}"]`); }
 function updateSel(prop, val) {
   const f = coord.fields[selIdx]; if (!f) return;
-  f[prop] = val; const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+  f[prop] = val; const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
 }
 function startFieldDrag(ev) {
   const idx = +ev.currentTarget.dataset.idx;
@@ -440,7 +453,7 @@ function onFieldDrag(ev) {
   const f = coord.fields[fdrag.idx];
   f.x = Math.round((fdrag.ox + (ev.clientX - fdrag.sx) / (previewScale * PT)) * 10) / 10;
   f.baseline = Math.round((fdrag.oy + (ev.clientY - fdrag.sy) / (previewScale * PT)) * 10) / 10;
-  const d = selDiv(); if (d) styleTextEl(d, f, records[cur]);
+  const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
   $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
 }
 function endFieldDrag(ev) {
