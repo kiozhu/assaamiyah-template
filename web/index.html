@@ -8,7 +8,7 @@
 <!-- Kunci keamanan: hanya boleh memuat/menghubungi sumber dari server ini sendiri.
      Browser DILARANG mengirim data ke alamat luar mana pun. -->
 <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'">
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'self'">
 <link rel="stylesheet" href="styles.css">
 <!-- Semua library disimpan lokal (tidak ambil dari internet). -->
 <script src="lib/xlsx.full.min.js"></script>
@@ -127,8 +127,10 @@
       <button id="saveGlobal" class="btn primary hidden" title="Simpan untuk SEMUA pengunjung (perlu login admin)">🌐 Simpan Global</button>
       <button id="resetDefault" class="btn ghost hidden">↩️ Reset Default</button>
       <span style="flex:1"></span>
-      <button id="dlPdfOne" class="btn primary">⬇️ PDF (ini)</button>
-      <button id="dlPdfAll" class="btn primary">⬇️ PDF (semua)</button>
+      <button id="printOne" class="btn primary">🖨️ Print (ini)</button>
+      <button id="printAll" class="btn primary">🖨️ Print (semua)</button>
+      <button id="dlPdfOne" class="btn ghost">⬇️ PDF (ini)</button>
+      <button id="dlPdfAll" class="btn ghost">⬇️ PDF (semua)</button>
       <button id="dlDocxOne" class="btn ghost">⬇️ Word (ini)</button>
       <button id="dlDocxAll" class="btn ghost">⬇️ Word (semua)</button>
     </div>

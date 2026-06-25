@@ -29,6 +29,8 @@ let coord = null;      // peta koordinat template aktif
 let form = null;       // metadata form (label/ask/default)
 let baseDocx = null;   // kerangka docx (lazy)
 let records = [];
+const recordsByTpl = {};   // data per-template (ijazah/skhu/nilai_ijazah TERPISAH)
+const statusByTpl = {};    // status upload Excel per-template
 let cur = 0;
 let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
 let pendingRecord = null;   // data menunggu diberi nama di dialog sebelum masuk daftar
@@ -93,8 +95,13 @@ async function loadTemplate(key, forceShipped = false) {
   catch { form = autoForm(coord); }
   bgUrl = coord.background || null;
   showBg = true; if ($('#showBg')) $('#showBg').checked = true;
-  records = []; cur = 0;
+  records = recordsByTpl[key] || (recordsByTpl[key] = []);   // data milik template ini saja
+  cur = 0;
   renderPicker();
+  // pulihkan status upload Excel khusus template ini (jangan bocor antar-template)
+  const stEl = $('#excelStatus');
+  if (stEl) { const sv = statusByTpl[key]; stEl.className = 'status' + (sv ? ' ' + sv.cls : ''); stEl.textContent = sv ? sv.text : ''; }
+  if ($('#excelFile')) $('#excelFile').value = '';
   // notice kalau template belum punya field
   const note = $('#tplNotice');
   if (uniqueFieldKeys().length === 0) {
@@ -145,7 +152,11 @@ function bindStatic() {
   $('#edPageSize').onchange = onPageSize;
   $('#edBgFile').onchange = onChangeBg;
   updateAdminUI();
-  $('#clearRecords').onclick = () => { records = []; cur = 0; refreshRecords(); renderPreview(); };
+  $('#clearRecords').onclick = () => {
+    records = []; cur = 0; recordsByTpl[TKEY] = records; delete statusByTpl[TKEY];
+    const st = $('#excelStatus'); if (st) { st.className = 'status'; st.textContent = ''; }
+    refreshRecords(); renderPreview();
+  };
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
   $('#bgImage').onchange = onBg;
@@ -153,6 +164,8 @@ function bindStatic() {
   const donasi = $('#donasiBtn');
   if (donasi) donasi.onclick = () => alert('💝 Donasi akan segera dibuka.\nNomor rekening menyusul — terima kasih atas dukungannya! 🙏');
   $('#showBg').onchange = (e) => { showBg = e.target.checked; renderPreview(); };
+  $('#printOne').onclick = () => printPdf(false);
+  $('#printAll').onclick = () => printPdf(true);
   $('#dlPdfOne').onclick = () => makePdf(false);
   $('#dlPdfAll').onclick = () => makePdf(true);
   $('#dlDocxOne').onclick = () => makeDocx(false);
@@ -217,8 +230,9 @@ async function onExcel(e) {
     const miss = uniqueFieldKeys().filter(k => !headers.includes(k));
     if (miss.length) { st.className = 'status err'; st.textContent = '⚠️ Kolom belum ada: ' + miss.join(', '); return; }
     if (!data.length) { st.className = 'status err'; st.textContent = 'Tidak ada baris data.'; return; }
-    records = data; cur = 0;
+    records = data; cur = 0; recordsByTpl[TKEY] = data;
     st.className = 'status ok'; st.textContent = `✅ ${data.length} data terbaca (sheet: ${name}).`;
+    statusByTpl[TKEY] = { cls: 'ok', text: st.textContent };
     refreshRecords(); renderPreview();
   } catch (err) {
     st.className = 'status err'; st.textContent = 'Gagal baca Excel: ' + err.message;
@@ -321,7 +335,7 @@ function refreshRecords() {
   });
   const has = records.length > 0;
   $('#navLabel').textContent = has ? `${cur + 1} / ${records.length}` : '— / —';
-  ['dlPdfOne', 'dlPdfAll', 'dlDocxOne', 'dlDocxAll', 'prev', 'next'].forEach(id => $('#' + id).disabled = !has);
+  ['printOne', 'printAll', 'dlPdfOne', 'dlPdfAll', 'dlDocxOne', 'dlDocxAll', 'prev', 'next'].forEach(id => $('#' + id).disabled = !has);
 }
 // Hapus satu data dari daftar (bukan kosongkan semua).
 function deleteRecord(i) {
@@ -602,30 +616,48 @@ function hexRgb(hex) {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return PDFLib.rgb(0, 0, 0);
   const n = parseInt(m[1], 16); return PDFLib.rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
 }
-async function makePdf(all) {
-  try {
-    const list = all ? records : [records[cur]];
-    if (!list.length || !list[0]) return;
-    const pdf = await PDFLib.PDFDocument.create();
-    const fonts = await buildFonts(pdf);
-    const H = coord.page.h;
-    for (const rec of list) {
-      const pg = pdf.addPage([coord.page.w, H]);
-      for (const fld of coord.fields) {
-        const txt = valueFor(fld, rec) || '';
-        if (txt === '') continue;
-        const font = pickPdfFont(fonts, fld.font, fld.bold, fld.italic);
-        let x = fld.x;
-        if (fld.align === 'center' || fld.align === 'right') {
-          const w = font.widthOfTextAtSize(String(txt), fld.size);
-          x = fld.align === 'center' ? x - w / 2 : x - w;
-        }
-        pg.drawText(String(txt), { x, y: H - fld.baseline, size: fld.size, font, color: hexRgb(fld.color) });
+async function buildPdfBlob(all) {
+  const list = all ? records : [records[cur]];
+  if (!list.length || !list[0]) return null;
+  const pdf = await PDFLib.PDFDocument.create();
+  const fonts = await buildFonts(pdf);
+  const H = coord.page.h;
+  for (const rec of list) {
+    const pg = pdf.addPage([coord.page.w, H]);
+    for (const fld of coord.fields) {
+      const txt = valueFor(fld, rec) || '';
+      if (txt === '') continue;
+      const font = pickPdfFont(fonts, fld.font, fld.bold, fld.italic);
+      let x = fld.x;
+      if (fld.align === 'center' || fld.align === 'right') {
+        const w = font.widthOfTextAtSize(String(txt), fld.size);
+        x = fld.align === 'center' ? x - w / 2 : x - w;
       }
+      pg.drawText(String(txt), { x, y: H - fld.baseline, size: fld.size, font, color: hexRgb(fld.color) });
     }
-    const bytes = await pdf.save();
-    download(new Blob([bytes], { type: 'application/pdf' }), `${TKEY}_${all ? 'semua' : safe(list[0].Nama_Lengkap)}.pdf`);
-  } catch (e) { alert('Gagal buat PDF: ' + e.message); }
+  }
+  const bytes = await pdf.save();
+  return { blob: new Blob([bytes], { type: 'application/pdf' }), name: `${TKEY}_${all ? 'semua' : safe(list[0].Nama_Lengkap)}.pdf` };
+}
+async function makePdf(all) {
+  try { const r = await buildPdfBlob(all); if (r) download(r.blob, r.name); }
+  catch (e) { alert('Gagal buat PDF: ' + e.message); }
+}
+// Cetak langsung: muat PDF di iframe tersembunyi lalu buka dialog Print browser.
+async function printPdf(all) {
+  try {
+    const r = await buildPdfBlob(all); if (!r) return;
+    const url = URL.createObjectURL(r.blob);
+    const ifr = document.createElement('iframe');
+    ifr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+    ifr.onload = () => {
+      try { ifr.contentWindow.focus(); ifr.contentWindow.print(); }
+      catch (e) { window.open(url, '_blank'); }   // fallback: buka di tab baru, cetak via Ctrl+P
+    };
+    ifr.src = url;
+    document.body.appendChild(ifr);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) { alert('Gagal print: ' + e.message); }
 }
 
 /* ---------------- Word (di-generate dari JSON) ---------------- */
