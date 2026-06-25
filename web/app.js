@@ -31,6 +31,7 @@ let baseDocx = null;   // kerangka docx (lazy)
 let records = [];
 let cur = 0;
 let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
+let pendingRecord = null;   // data menunggu diberi nama di dialog sebelum masuk daftar
 let bgUrl = null;
 let showBg = true;
 let editMode = false;
@@ -124,6 +125,10 @@ function bindStatic() {
   $('#sampleXlsx').onclick = downloadSample;
   $('#addRecord').onclick = addManual;
   $('#previewManual').onclick = previewManual;
+  $('#nameModalSave').onclick = confirmAddName;
+  $('#nameModalCancel').onclick = closeNameModal;
+  $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
+  $('#nameModal').onclick = (e) => { if (e.target.id === 'nameModal') closeNameModal(); };
   $('#clearRecords').onclick = () => { records = []; cur = 0; refreshRecords(); renderPreview(); };
   $('#prev').onclick = () => { if (records.length) { cur = (cur - 1 + records.length) % records.length; refreshRecords(); renderPreview(); } };
   $('#next').onclick = () => { if (records.length) { cur = (cur + 1) % records.length; refreshRecords(); renderPreview(); } };
@@ -236,12 +241,30 @@ function readManualForm() {
   });
   return { o, consts };
 }
+// Klik "Tambah ke daftar": jangan langsung simpan — buka dialog beri nama dulu.
 function addManual() {
   const { o, consts } = readManualForm();
+  pendingRecord = { o, consts };
+  const inp = $('#nameModalInput');
+  inp.value = recordName(o, records.length);   // pra-isi dari nama yang sudah diketik
+  $('#nameModal').classList.remove('hidden');
+  inp.focus(); inp.select();
+}
+// Simpan data dari dialog (dengan nama yang diberikan) ke daftar.
+function confirmAddName() {
+  if (!pendingRecord) return;
+  const { o, consts } = pendingRecord;
+  const name = $('#nameModalInput').value.trim();
+  if (name) o.__label = name;                  // label tampilan di daftar (tidak ikut tercetak)
   localStorage.setItem('const_' + TKEY, JSON.stringify(consts));
   records.push(o); cur = records.length - 1;
   $('#manualForm').querySelectorAll('input[data-ask="1"]').forEach(i => i.value = '');
-  refreshRecords(); renderPreview();   // refreshRecords() mereset manualPreview
+  closeNameModal();
+  refreshRecords(); renderPreview();           // refreshRecords() mereset manualPreview
+}
+function closeNameModal() {
+  pendingRecord = null;
+  $('#nameModal').classList.add('hidden');
 }
 // Pratinjau data yang sedang diketik TANPA menambahkannya ke daftar.
 function previewManual() {
@@ -253,8 +276,9 @@ function previewManual() {
 
 /* ---------------- records ---------------- */
 function recordName(r, i) {
-  const firstVal = Object.values(r).find(v => v != null && String(v).trim() !== '');
-  return r.Nama_Lengkap || r.Nama || firstVal || `(data ${i + 1})`;
+  if (r.__label) return r.__label;             // nama kustom dari dialog
+  const firstVal = Object.entries(r).find(([k, v]) => k !== '__label' && v != null && String(v).trim() !== '');
+  return r.Nama_Lengkap || r.Nama || (firstVal ? firstVal[1] : null) || `(data ${i + 1})`;
 }
 function refreshRecords() {
   manualPreview = null;                                   // keluar dari mode pratinjau manual

@@ -172,6 +172,19 @@
   <div class="foot-badge">🔒 Data tidak dikirim ke server</div>
 </footer>
 
+<!-- Dialog: beri nama data sebelum disimpan ke daftar -->
+<div id="nameModal" class="modal-overlay hidden">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="nameModalTitle">
+    <h3 id="nameModalTitle">📝 Beri nama data</h3>
+    <p class="modal-hint">Nama ini hanya untuk memudahkan mengenali data di daftar (tidak ikut tercetak).</p>
+    <input id="nameModalInput" type="text" autocomplete="off" placeholder="mis. Budi Santoso">
+    <div class="modal-actions">
+      <button id="nameModalCancel" class="btn ghost sm">Batal</button>
+      <button id="nameModalSave" class="btn primary sm">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>

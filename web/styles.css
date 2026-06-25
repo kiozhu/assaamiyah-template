@@ -182,6 +182,19 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px;max-widt
   font-size:12px;line-height:1;cursor:pointer;transition:.15s}
 .rec-del:hover{background:rgba(229,72,72,.16);border-color:rgba(229,72,72,.42);color:#ff9b9b}
 
+/* ===== dialog beri nama data ===== */
+.modal-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(2,10,6,.62);backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.modal{width:min(390px,92vw);background:#0a1a12;border:1px solid var(--brd);border-radius:16px;
+  padding:20px 20px 18px;box-shadow:0 26px 70px rgba(0,0,0,.55)}
+.modal h3{margin:0 0 6px;font-family:var(--display);font-size:16px;color:var(--ink)}
+.modal-hint{margin:0 0 13px;font-size:12px;color:var(--muted);line-height:1.5}
+.modal input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--brd);border-radius:10px;
+  font-size:14px;font-family:var(--body);background:var(--glass-2);color:var(--ink)}
+.modal input:focus{outline:none;border-color:var(--green-2);box-shadow:0 0 0 3px rgba(21,214,126,.15)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
+
 /* ===== input manual: aksi & pratinjau ===== */
 .manual-actions{display:flex;gap:8px;margin-top:6px}
 .manual-actions .btn.primary{flex:1}
