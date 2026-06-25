@@ -74,7 +74,8 @@
       <label class="file-drop" for="excelFile">
         <span class="fd-ic">⬆️</span>
         <span>Klik untuk pilih file Excel</span>
-        <input type="file" id="excelFile" accept=".xlsx,.xlsm" hidden>
+        <input type="file" id="excelFile" class="file-input"
+               accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
       </label>
       <div class="sample-btns">
         <button id="sampleEmpty" class="btn ghost sm" title="Header kolom saja, siap Anda isi">⬇️ Format Kosong</button>
@@ -208,15 +209,16 @@
   <img class="foot-logo" src="assets/logo.jpg" alt="">
   <div>
     <b>MDTU As'saamiyah</b><br>
-    <span class="muted">Desa Pabean Udik, Kec. Indramayu</span><br>
-    <span class="dev-credit">👨‍💻 Sistem oleh <a href="https://github.com/kiozhu" target="_blank" rel="noopener noreferrer">kiozhu</a> · butuh aplikasi/sistem serupa? <a href="https://wa.me/6285133469352" target="_blank" rel="noopener noreferrer">hubungi saya</a></span>
+    <span class="muted">Desa Pabean Udik, Kec. Indramayu</span>
   </div>
   <div class="foot-links">
-    <a class="foot-link" href="https://github.com/kiozhu" target="_blank" rel="noopener noreferrer">💻 GitHub</a>
     <a class="foot-link" href="https://wa.me/6285133469352" target="_blank" rel="noopener noreferrer">💬 Hubungi saya</a>
     <button id="donasiBtn" class="foot-link" type="button">💝 Donasi <span class="soon">soon</span></button>
   </div>
-  <div class="foot-badge">🔒 Data tidak dikirim ke server</div>
+  <div class="foot-right">
+    <div class="foot-badge">🔒 Data tidak dikirim ke server</div>
+    <span class="dev-credit">Dikembangkan oleh <a href="https://github.com/kiozhu" target="_blank" rel="noopener noreferrer">kiozhu</a></span>
+  </div>
 </footer>
 
 <!-- Dialog: login admin -->
