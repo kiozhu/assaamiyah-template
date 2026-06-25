@@ -282,6 +282,9 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 .site-footer b{font-family:var(--display);color:#eafff3}
 .site-footer .muted{color:var(--muted)}
 .sample-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.dev-credit{font-size:12px;color:var(--muted)}
+.dev-credit a{color:#bff7d6;text-decoration:none;font-weight:500}
+.dev-credit a:hover{text-decoration:underline}
 .foot-links{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .foot-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-size:13px;
   color:var(--ink);text-decoration:none;background:var(--glass);border:1px solid var(--brd);
