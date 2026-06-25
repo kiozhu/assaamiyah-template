@@ -223,8 +223,9 @@ function bindStatic() {
 
 /* ---------------- mode Excel ---------------- */
 async function onExcel(e) {
-  const file = e.target.files[0]; if (!file) return;
+  const file = e.target.files[0]; e.target.value = ''; if (!file) return;   // reset agar bisa pilih file sama lagi
   const st = $('#excelStatus');
+  st.className = 'status'; st.textContent = '⏳ Membaca file…';
   try {
     const buf = await file.arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array' });
@@ -250,7 +251,8 @@ async function onExcel(e) {
     persist();
     refreshRecords(); renderPreview();
   } catch (err) {
-    st.className = 'status err'; st.textContent = 'Gagal baca Excel: ' + err.message;
+    st.className = 'status err';
+    st.textContent = '❌ Gagal membaca. Pastikan file Excel (.xlsx/.xls) yang benar — bukan PDF/gambar.';
   }
 }
 
