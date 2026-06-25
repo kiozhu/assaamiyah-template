@@ -278,7 +278,7 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 .a4 .t{position:absolute;white-space:nowrap;line-height:1;color:#000}
 
 /* ===== footer ===== */
-.site-footer{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:26px 30px;margin-top:24px;
+.site-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:26px 30px;margin-top:24px;
   font-size:13px;background:rgba(4,16,10,.6);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-top:1px solid var(--brd)}
 .foot-logo{width:50px;height:50px;object-fit:contain;background:#fff;border-radius:12px;padding:4px}
@@ -288,14 +288,15 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 .dev-credit{font-size:12px;color:var(--muted)}
 .dev-credit a{color:#bff7d6;text-decoration:none;font-weight:500}
 .dev-credit a:hover{text-decoration:underline}
-.foot-links{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.foot-brand{display:flex;align-items:center;gap:16px}
+.foot-links{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
 .foot-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-size:13px;
   color:var(--ink);text-decoration:none;background:var(--glass);border:1px solid var(--brd);
   border-radius:10px;padding:8px 13px;cursor:pointer;transition:.18s}
 .foot-link:hover{border-color:var(--green-2);color:#bff7d6;box-shadow:0 0 14px rgba(31,174,95,.18)}
 .foot-link .soon{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#04120a;
   background:var(--gold);border-radius:6px;padding:1px 6px;font-weight:700}
-.foot-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:7px;text-align:right}
+.foot-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;text-align:right}
 .foot-badge{background:var(--glass);border:1px solid var(--brd);
   padding:9px 15px;border-radius:999px;white-space:nowrap;color:#bff7d6}
 
@@ -332,8 +333,8 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
   .tb-spacer{display:none}
   .out-group{flex:1 1 auto;justify-content:center}
   #recordList{max-height:46vh}
-  .site-footer{padding:18px 15px;gap:12px}
-  .foot-badge{margin-left:0}
+  .site-footer{padding:18px 15px;gap:14px;flex-direction:column;text-align:center}
+  .foot-brand,.foot-right{align-items:center;text-align:center}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important}
