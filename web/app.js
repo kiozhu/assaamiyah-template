@@ -474,8 +474,18 @@ function styleTextEl(div, fld, rec) {
   div.style.fontStyle = fld.italic ? 'italic' : 'normal';
   div.style.color = fld.color || '#000';
   div.style.transform = fld.align === 'center' ? 'translateX(-50%)' : fld.align === 'right' ? 'translateX(-100%)' : 'none';
-  div.textContent = valueFor(fld, rec);
-  if (!rec && fld.isField) div.style.color = editMode ? '#1f8fd0' : '#9fb0c0';
+  const val = valueFor(fld, rec);
+  div.textContent = val;
+  div.style.opacity = '';
+  // Mode edit: elemen yang nilainya kosong (mis. field "tetap" seperti Nama Kepala)
+  // tetap harus terlihat sebagai placeholder agar bisa dipilih & digeser.
+  if (editMode && (val == null || val === '')) {
+    div.textContent = fld.isField ? ('«' + fld.key + '»') : '«teks»';
+    div.style.color = '#1f8fd0';
+    div.style.opacity = '.9';
+  } else if (!rec && fld.isField) {
+    div.style.color = editMode ? '#1f8fd0' : '#9fb0c0';
+  }
 }
 // Bangun 1 record contoh (semua field terisi) untuk mode edit.
 function sampleRecord() {
