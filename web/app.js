@@ -1018,13 +1018,19 @@ function exampleValue(key, meta, i) {
 
 // filled=false -> hanya header (format kosong). filled=true -> + 30 baris contoh terisi.
 function downloadSample(filled) {
-  // Kolom Huruf turunan tidak disertakan -> kolom Angka jadi berurutan (mudah copy-paste);
-  // nilai huruf dibuat otomatis saat di-upload ke web.
-  const keys = uniqueFieldKeys().filter(k => !isDerivedHuruf(k));
+  // Kolom Huruf turunan dipindah ke PALING KANAN -> kolom Angka berurutan (mudah copy-paste),
+  // tapi kolom Huruf tetap ada (boleh dikosongkan; nilai huruf otomatis dibuat saat di-upload).
+  const all = uniqueFieldKeys();
+  const keys = [...all.filter(k => !isDerivedHuruf(k)), ...all.filter(k => isDerivedHuruf(k))];
   if (!keys.length) { alert('Template ini belum punya field.'); return; }
   const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
   const rows = [keys];
-  if (filled) for (let i = 0; i < 30; i++) rows.push(keys.map(k => exampleValue(k, meta[k], i)));
+  if (filled) for (let i = 0; i < 30; i++) {
+    const rec = {};
+    all.forEach(k => { if (!isDerivedHuruf(k)) rec[k] = exampleValue(k, meta[k], i); });
+    autofillHuruf(rec);                          // kolom Huruf contoh diisi dari Angka
+    rows.push(keys.map(k => rec[k] != null ? rec[k] : ''));
+  }
   const ws = XLSX.utils.aoa_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, (form.sheet || 'DATA').slice(0, 31));
