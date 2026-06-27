@@ -92,6 +92,8 @@
       <form id="manualForm"></form>
       <div id="manualActions" class="manual-actions">
         <button id="addRecord" class="btn primary sm">➕ Tambah ke daftar</button>
+        <button id="saveRecord" class="btn primary sm hidden">💾 Simpan perubahan</button>
+        <button id="cancelEdit" class="btn ghost sm hidden">✖ Batal edit</button>
       </div>
       <div id="manualPreviewNote" class="manual-prev-note hidden">👁️ Pratinjau otomatis dari isian — <b>belum ditambahkan</b>. Klik “➕ Tambah ke daftar” bila sudah yakin.</div>
     </div>
@@ -100,8 +102,10 @@
       <div class="records-head">
         <b>Daftar data</b>
         <span id="recCount" class="chip">0 data</span>
+        <button id="exportExcel" class="btn ghost xs" title="Unduh semua data sebagai Excel (cadangan)">⬇️ Excel</button>
         <button id="clearRecords" class="btn ghost xs">🗑️ Kosongkan</button>
       </div>
+      <p class="hint rec-hint">💡 Klik salah satu data untuk <b>mengedit</b> di Input Manual.</p>
       <ol id="recordList"></ol>
       <div id="recordsEmpty" class="records-empty">
         <div class="re-ic">🗂️</div>

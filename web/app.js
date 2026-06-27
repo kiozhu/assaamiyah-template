@@ -46,6 +46,7 @@ function loadPersisted() {
 let cur = 0;
 let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
 let pendingRecord = null;   // data menunggu diberi nama di dialog sebelum masuk daftar
+let editingIdx = -1;        // index data yang sedang diedit lewat Input Manual (-1 = tambah baru)
 let adminToken = null;      // token sesi admin (di memori + sessionStorage)
 let bgUrl = null;
 let showBg = true;
@@ -110,7 +111,7 @@ async function loadTemplate(key, forceShipped = false) {
   bgUrl = coord.background || null;
   showBg = true; if ($('#showBg')) $('#showBg').checked = true;
   records = recordsByTpl[key] || (recordsByTpl[key] = []);   // data milik template ini saja
-  cur = 0;
+  cur = 0; editingIdx = -1;                                  // mulai segar di tiap template
   renderPicker();
   // pulihkan status upload Excel khusus template ini (jangan bocor antar-template)
   const stEl = $('#excelStatus');
@@ -147,6 +148,9 @@ function bindStatic() {
   $('#sampleEmpty').onclick = () => downloadSample(false);
   $('#sampleFilled').onclick = () => downloadSample(true);
   $('#addRecord').onclick = addManual;
+  $('#saveRecord').onclick = saveRecord;
+  $('#cancelEdit').onclick = cancelEdit;
+  $('#exportExcel').onclick = exportExcel;
   $('#manualForm').oninput = previewManual;   // pratinjau auto-refresh tiap kolom diisi
   $('#nameModalSave').onclick = confirmAddName;
   $('#nameModalCancel').onclick = closeNameModal;
@@ -167,6 +171,7 @@ function bindStatic() {
   $('#edBgFile').onchange = onChangeBg;
   updateAdminUI();
   $('#clearRecords').onclick = () => {
+    if (editingIdx >= 0) exitEditMode();
     records = []; cur = 0; recordsByTpl[TKEY] = records; delete statusByTpl[TKEY]; persist();
     const st = $('#excelStatus'); if (st) { st.className = 'status'; st.textContent = ''; }
     refreshRecords(); renderPreview();
@@ -252,7 +257,7 @@ async function onExcel(e) {
     const miss = uniqueFieldKeys().filter(k => !headers.includes(k));
     if (miss.length) { st.className = 'status err'; st.textContent = '⚠️ Kolom belum ada: ' + miss.join(', '); return; }
     if (!data.length) { st.className = 'status err'; st.textContent = 'Tidak ada baris data.'; return; }
-    records = data; cur = 0; recordsByTpl[TKEY] = data;
+    records = data; cur = 0; recordsByTpl[TKEY] = data; editingIdx = -1;
     st.className = 'status ok'; st.textContent = `✅ ${data.length} data terbaca (sheet: ${name}).`;
     statusByTpl[TKEY] = { cls: 'ok', text: st.textContent };
     persist();
@@ -279,6 +284,7 @@ function buildManualForm() {
     f.appendChild(wrap);
   });
   $('#manualActions').style.display = keys.length ? '' : 'none';
+  updateManualMode();
 }
 // Susun ulang urutan input manual mengikuti posisi placeholder TERKINI, tanpa
 // membangun ulang form (memindah elemen yang sudah ada -> nilai yang sudah
@@ -323,9 +329,74 @@ function closeNameModal() {
 function previewManual() {
   const o = readManualForm();
   manualPreview = o;
-  draftByTpl[TKEY] = o; persist();             // simpan draft tiap ketik (anti-hilang)
-  const note = $('#manualPreviewNote'); if (note) note.classList.remove('hidden');
+  if (editingIdx < 0) {
+    draftByTpl[TKEY] = o; persist();           // draft hanya untuk entri baru (anti-hilang)
+    setManualNote('👁️ Pratinjau otomatis dari isian — <b>belum ditambahkan</b>. Klik “➕ Tambah ke daftar” bila sudah yakin.');
+  } else {
+    setManualNote('✏️ Mengedit <b>' + escapeHtml(recordName(o, editingIdx)) + '</b> — klik “💾 Simpan perubahan” untuk menyimpan.');
+  }
   renderPreview();
+}
+function setManualNote(html) {
+  const n = $('#manualPreviewNote'); if (!n) return;
+  if (html == null) { n.classList.add('hidden'); return; }
+  n.innerHTML = html; n.classList.remove('hidden');
+}
+// Klik salah satu data -> muat ke Input Manual untuk diedit langsung.
+function editRecord(i) {
+  if (i < 0 || i >= records.length) return;
+  editingIdx = i; cur = i;
+  // pindah ke tab Input Manual
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === 'manual'));
+  $('#tab-excel').classList.add('hidden');
+  $('#tab-manual').classList.remove('hidden');
+  buildManualForm();                            // bangun ulang field sesuai template
+  const rec = records[i] || {};
+  $('#manualForm').querySelectorAll('input').forEach(inp => { const k = inp.dataset.key; inp.value = (rec[k] != null ? rec[k] : ''); });
+  refreshRecords();                             // sorot baris aktif (mereset manualPreview/note)
+  manualPreview = readManualForm();             // pratinjau pakai data yang dimuat
+  updateManualMode();
+  setManualNote('✏️ Mengedit <b>' + escapeHtml(recordName(rec, i)) + '</b> — ubah lalu klik “💾 Simpan perubahan”.');
+  renderPreview();
+  $('#tab-manual').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+// Simpan perubahan data yang sedang diedit ke daftar (langsung di web).
+function saveRecord() {
+  if (editingIdx < 0 || editingIdx >= records.length) return;
+  const o = readManualForm();
+  const old = records[editingIdx];
+  if (old && old.__label) o.__label = old.__label;   // pertahankan nama tampilan kustom
+  records[editingIdx] = o; cur = editingIdx;
+  persist();
+  exitEditMode();
+  refreshRecords(); renderPreview();
+  setManualNote('✅ Perubahan tersimpan di browser ini.');
+  setTimeout(() => { const n = $('#manualPreviewNote'); if (n && n.textContent.startsWith('✅')) n.classList.add('hidden'); }, 2500);
+}
+function cancelEdit() { exitEditMode(); refreshRecords(); renderPreview(); setManualNote(null); }
+function exitEditMode() {
+  editingIdx = -1; manualPreview = null;
+  $('#manualForm').querySelectorAll('input').forEach(i => i.value = '');
+  updateManualMode();
+}
+// Tampilkan tombol sesuai mode: tambah-baru vs edit-data.
+function updateManualMode() {
+  const editing = editingIdx >= 0 && editingIdx < records.length;
+  $('#addRecord').classList.toggle('hidden', editing);
+  $('#saveRecord').classList.toggle('hidden', !editing);
+  $('#cancelEdit').classList.toggle('hidden', !editing);
+}
+// Unduh semua data sebagai Excel (cadangan; header = nama placeholder agar bisa di-upload lagi).
+function exportExcel() {
+  if (!records.length) { alert('Belum ada data untuk diunduh.'); return; }
+  const keys = uniqueFieldKeys();
+  if (!keys.length) { alert('Template ini belum punya field.'); return; }
+  const rows = [keys];
+  records.forEach(r => rows.push(keys.map(k => (r[k] != null ? r[k] : ''))));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, (form.sheet || 'DATA').slice(0, 31));
+  XLSX.writeFile(wb, `data_${TKEY}.xlsx`);
 }
 
 /* ---------------- records ---------------- */
@@ -353,7 +424,9 @@ function refreshRecords() {
   records.forEach((r, i) => {
     const li = document.createElement('li');
     if (i === cur) li.classList.add('active');
-    li.onclick = () => { cur = i; refreshRecords(); renderPreview(); };
+    if (i === editingIdx) li.classList.add('editing');
+    li.title = 'Klik untuk edit data ini';
+    li.onclick = () => editRecord(i);
     const name = document.createElement('span');
     name.className = 'rec-name';
     name.textContent = recordName(r, i);
@@ -371,11 +444,15 @@ function refreshRecords() {
   $('#recordList').style.display = has ? '' : 'none';
   $('#navLabel').textContent = has ? `${cur + 1} / ${records.length}` : '— / —';
   ['printOne', 'printAll', 'dlPdfOne', 'dlPdfAll', 'dlDocxOne', 'dlDocxAll', 'prev', 'next'].forEach(id => $('#' + id).disabled = !has);
+  const ex = $('#exportExcel'); if (ex) ex.disabled = !has;
+  updateManualMode();
   updateStats();
 }
 // Hapus satu data dari daftar (bukan kosongkan semua).
 function deleteRecord(i) {
   records.splice(i, 1);
+  if (editingIdx === i) exitEditMode();          // data yang diedit terhapus -> keluar mode edit
+  else if (editingIdx > i) editingIdx--;         // index bergeser setelah penghapusan
   if (cur >= records.length) cur = Math.max(0, records.length - 1);
   persist();
   refreshRecords(); renderPreview();
@@ -870,6 +947,7 @@ function downloadSample(filled) {
 /* ---------------- util ---------------- */
 function safe(s) { return (String(s || 'data').replace(/[^\w\- ]+/g, '_').trim()) || 'data'; }
 function escapeAttr(s) { return String(s).replace(/"/g, '&quot;'); }
+function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 function download(blob, name) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove();

@@ -205,7 +205,8 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 /* ===== records ===== */
 .records{margin-top:18px;border-top:1px solid var(--brd);padding-top:14px;flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
 .records-head{display:flex;align-items:center;gap:8px;flex:none}
-.records-head .btn{margin-left:auto}
+.records-head button:first-of-type{margin-left:auto}
+.rec-hint{margin:7px 0 0;font-size:11.5px;opacity:.85}
 #recordList{margin:11px 0 0;padding:0;list-style:none;flex:1 1 auto;min-height:0;overflow:auto}
 .records-empty{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;gap:6px;color:var(--muted);padding:22px 16px;min-height:140px}
@@ -220,6 +221,8 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 #recordList li.active{background:linear-gradient(145deg,rgba(31,174,95,.20),rgba(25,201,176,.08));
   border-color:rgba(31,174,95,.4);font-weight:600;color:#eafff3;box-shadow:0 0 18px rgba(31,174,95,.2)}
 #recordList li.active:before{content:"📄";opacity:1}
+#recordList li.editing{border-color:rgba(25,201,176,.55);box-shadow:0 0 16px rgba(25,201,176,.25)}
+#recordList li.editing:before{content:"✏️";opacity:1}
 .rec-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rec-del{flex:none;width:24px;height:24px;display:flex;align-items:center;justify-content:center;
   background:transparent;border:1px solid transparent;border-radius:7px;color:var(--muted);
