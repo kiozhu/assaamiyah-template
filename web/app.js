@@ -32,16 +32,23 @@ let records = [];
 const recordsByTpl = {};   // data per-template (ijazah/skhu/nilai_ijazah TERPISAH)
 const statusByTpl = {};    // status upload Excel per-template
 const draftByTpl = {};     // draft isian manual yang BELUM ditambahkan (per template)
+const labelByTpl = {};     // ganti-nama LABEL kolom (tampilan saja, per template, lokal)
 const LS_DATA = 'assa_data_v1';   // autosave: agar data tidak hilang saat refresh/disconnect
 function persist() {
-  try { localStorage.setItem(LS_DATA, JSON.stringify({ records: recordsByTpl, drafts: draftByTpl })); } catch (e) {}
+  try { localStorage.setItem(LS_DATA, JSON.stringify({ records: recordsByTpl, drafts: draftByTpl, labels: labelByTpl })); } catch (e) {}
 }
 function loadPersisted() {
   try {
     const d = JSON.parse(localStorage.getItem(LS_DATA) || '{}');
     if (d.records) Object.assign(recordsByTpl, d.records);
     if (d.drafts) Object.assign(draftByTpl, d.drafts);
+    if (d.labels) Object.assign(labelByTpl, d.labels);
   } catch (e) {}
+}
+// Label tampilan kolom: pakai hasil rename lokal jika ada, jika tidak pakai bawaan.
+function fieldLabel(key, meta) {
+  const ov = labelByTpl[TKEY] && labelByTpl[TKEY][key];
+  return (ov != null && ov !== '') ? ov : ((meta && meta.label) || key.replace(/_/g, ' '));
 }
 let cur = 0;
 let manualPreview = null;   // data input manual yang sedang dipratinjau (belum ditambahkan)
@@ -197,6 +204,7 @@ function bindStatic() {
   $('#exportExcel').onclick = exportExcel;
   $('#manualForm').oninput = onManualInput;   // pratinjau auto-refresh + auto-isi kolom Huruf
   $('#manualForm').addEventListener('click', onCaseClick);   // tombol ubah huruf per kolom
+  $('#manualForm').addEventListener('click', onLabelClick);  // klik nama kolom -> ganti nama tampilan
   $('#nameModalSave').onclick = confirmAddName;
   $('#nameModalCancel').onclick = closeNameModal;
   $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
@@ -330,8 +338,11 @@ function buildManualForm() {
     // Kolom Huruf turunan: tandai auto (0 bila sudah ada isian draft) + placeholder.
     const huruf = isDerivedHuruf(key);
     const extra = huruf ? ` data-auto="${dv.trim() ? '0' : '1'}" placeholder="otomatis dari angka — bisa diedit"` : '';
+    const renamed = labelByTpl[TKEY] && labelByTpl[TKEY][key];
     // mulai kosong; kecuali ada draft tersimpan (anti-hilang saat refresh)
-    wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}${huruf ? ' ✨' : ''}</label>
+    wrap.innerHTML = `<label class="fld-label" data-key="${key}" title="Klik untuk ganti nama tampilan kolom ini">` +
+        `<span class="fld-label-txt">${escapeHtml(fieldLabel(key, m))}</span>${m.ask ? '' : ' (tetap)'}${huruf ? ' ✨' : ''}` +
+        `<span class="fld-label-edit">✎</span>${renamed ? '<span class="fld-label-reset" title="Kembalikan nama asli">↺</span>' : ''}</label>
       <div class="fld-in">
         <input data-key="${key}" data-ask="${m.ask ? 1 : 0}"${extra} value="${escapeAttr(dv)}">
         <button type="button" class="case-btn" tabindex="-1" title="Ubah huruf: BESAR SEMUA → Awal Kata → kecil semua">Aa</button>
@@ -419,6 +430,36 @@ function onCaseClick(e) {
   btn.textContent = CASE_LABEL[next];
   inp.value = applyCase(inp.value, next);
   onManualInput({ target: inp });               // huruf-autofill (bila kolom Angka) + simpan draft + pratinjau
+}
+// Klik nama kolom -> ganti nama TAMPILAN (lokal; tidak mengubah token dokumen/Excel).
+function onLabelClick(e) {
+  const label = e.target.closest('.fld-label'); if (!label) return;
+  const key = label.dataset.key; if (!key) return;
+  if (!labelByTpl[TKEY]) labelByTpl[TKEY] = {};
+  const meta = (form.fields || []).find(x => x.key === key);
+  const def = (meta && meta.label) || key.replace(/_/g, ' ');
+  if (e.target.closest('.fld-label-reset')) {     // tombol ↺ -> kembalikan nama asli
+    delete labelByTpl[TKEY][key]; persist(); applyLabelDom(key); return;
+  }
+  const v = prompt('Ganti nama tampilan kolom\n(hanya tampilan — token «' + key + '» di dokumen & header Excel tetap):', fieldLabel(key, meta));
+  if (v == null) return;
+  const nv = v.trim();
+  if (nv === '' || nv === def) delete labelByTpl[TKEY][key];   // sama dengan bawaan -> hapus override
+  else labelByTpl[TKEY][key] = nv;
+  persist(); applyLabelDom(key);
+}
+// Perbarui teks label di tempat (tanpa rebuild form -> nilai yang sedang diketik aman).
+function applyLabelDom(key) {
+  const label = $('#manualForm').querySelector(`.fld-label[data-key="${key}"]`); if (!label) return;
+  const meta = (form.fields || []).find(x => x.key === key);
+  const txt = label.querySelector('.fld-label-txt'); if (txt) txt.textContent = fieldLabel(key, meta);
+  const has = !!(labelByTpl[TKEY] && labelByTpl[TKEY][key]);
+  let reset = label.querySelector('.fld-label-reset');
+  if (has && !reset) {
+    reset = document.createElement('span');
+    reset.className = 'fld-label-reset'; reset.title = 'Kembalikan nama asli'; reset.textContent = '↺';
+    label.appendChild(reset);
+  } else if (!has && reset) { reset.remove(); }
 }
 // Pratinjau data yang sedang diketik TANPA menambahkannya ke daftar.
 function previewManual() {
