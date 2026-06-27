@@ -190,6 +190,8 @@ function bindStatic() {
   $('#editToggle').onclick = () => setEditMode(!editMode);
   $('#saveDefault').onclick = saveDefaultTpl;
   $('#resetDefault').onclick = resetDefaultTpl;
+  $('#epUndo').onclick = undoEdit;
+  $('#epRedo').onclick = redoEdit;
   $('#epAddField').onclick = () => addElementFront(true);
   $('#epAddText').onclick = () => addElementFront(false);
   $('#epDel').onclick = deleteSelField;
@@ -198,16 +200,20 @@ function bindStatic() {
   $('#epColor').oninput = e => updateSel('color', e.target.value);
   $('#epX').oninput = e => { updateSel('x', +e.target.value || 0); reorderManualForm(); };
   $('#epY').oninput = e => { updateSel('baseline', +e.target.value || 0); reorderManualForm(); };
-  $('#epBold').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.bold = !f.bold; $('#epBold').classList.toggle('on', f.bold); const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); };
-  $('#epItalic').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.italic = !f.italic; $('#epItalic').classList.toggle('on', f.italic); const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); };
+  $('#epBold').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.bold = !f.bold; $('#epBold').classList.toggle('on', f.bold); const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); histMark(); };
+  $('#epItalic').onclick = () => { const f = coord.fields[selIdx]; if (!f) return; f.italic = !f.italic; $('#epItalic').classList.toggle('on', f.italic); const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); histMark(); };
   document.querySelectorAll('.epAl').forEach(b => b.onclick = () => {
     const f = coord.fields[selIdx]; if (!f) return; f.align = b.dataset.al;
     document.querySelectorAll('.epAl').forEach(x => x.classList.toggle('on', x === b));
-    const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
+    const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); histMark();
   });
   $('#page').addEventListener('pointerdown', ev => { if (editMode && (ev.target.id === 'page' || ev.target.classList.contains('bg'))) selectField(-1); });
   document.addEventListener('keydown', ev => {
-    if (!editMode || selIdx < 0) return;
+    if (!editMode) return;
+    const ctrl = ev.ctrlKey || ev.metaKey;
+    if (ctrl && (ev.key === 'z' || ev.key === 'Z')) { ev.preventDefault(); ev.shiftKey ? redoEdit() : undoEdit(); return; }
+    if (ctrl && (ev.key === 'y' || ev.key === 'Y')) { ev.preventDefault(); redoEdit(); return; }
+    if (selIdx < 0) return;
     const tag = (document.activeElement.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'select') return;
     const f = coord.fields[selIdx]; if (!f) return;
@@ -218,7 +224,7 @@ function bindStatic() {
     ev.preventDefault(); f.x = Math.round(f.x * 10) / 10; f.baseline = Math.round(f.baseline * 10) / 10;
     const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
     $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
-    reorderManualForm();
+    reorderManualForm(); histMark();
   });
 }
 
@@ -472,6 +478,39 @@ function setEditMode(on) {
   updateAdminUI();                         // tombol "Simpan Global" ikut mode edit + status admin
   if (on) selectField(-1);
   renderPreview();
+  if (on) histReset(); else { editHist = []; editHistIdx = -1; histTimer = null; }
+}
+
+/* ---------------- undo / redo (mode edit) ---------------- */
+let editHist = [], editHistIdx = -1, histTimer = null;
+const HIST_MAX = 80;
+const snapCoord = () => JSON.stringify({ fields: coord.fields, page: coord.page });
+function histReset() { editHist = coord ? [snapCoord()] : []; editHistIdx = editHist.length - 1; histTimer = null; updateUndoUI(); }
+function histCommit() {
+  if (!coord) return;
+  const snap = snapCoord();
+  if (editHist[editHistIdx] === snap) return;             // tidak ada perubahan nyata
+  if (editHistIdx < editHist.length - 1) editHist = editHist.slice(0, editHistIdx + 1);  // buang cabang "ulangi"
+  editHist.push(snap);
+  if (editHist.length > HIST_MAX) editHist.shift();
+  editHistIdx = editHist.length - 1;
+  updateUndoUI();
+}
+// Tandai perubahan; rentetan perubahan cepat (geser, tahan panah) digabung jadi 1 langkah.
+function histMark() { if (!editMode) return; if (histTimer) clearTimeout(histTimer); histTimer = setTimeout(() => { histTimer = null; histCommit(); }, 350); }
+function histFlush() { if (histTimer) { clearTimeout(histTimer); histTimer = null; histCommit(); } }
+function histRestore() {
+  const s = JSON.parse(editHist[editHistIdx]);
+  coord.fields = s.fields; coord.page = s.page; selIdx = -1;
+  buildManualForm(); renderPreview(); fitPage(); syncPageSizeSelect(); selectField(-1);
+  updateUndoUI();
+}
+function undoEdit() { if (!editMode) return; histFlush(); if (editHistIdx > 0) { editHistIdx--; histRestore(); } }
+function redoEdit() { if (!editMode) return; histFlush(); if (editHistIdx < editHist.length - 1) { editHistIdx++; histRestore(); } }
+function updateUndoUI() {
+  const u = $('#epUndo'), r = $('#epRedo');
+  if (u) u.disabled = !editMode || editHistIdx <= 0;
+  if (r) r.disabled = !editMode || editHistIdx >= editHist.length - 1;
 }
 function selectField(idx) {
   selIdx = idx;
@@ -494,7 +533,7 @@ function selectField(idx) {
 function selDiv() { return document.querySelector(`#page .t[data-idx="${selIdx}"]`); }
 function updateSel(prop, val) {
   const f = coord.fields[selIdx]; if (!f) return;
-  f[prop] = val; const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
+  f[prop] = val; const d = selDiv(); if (d) styleTextEl(d, f, currentRec()); histMark();
 }
 function startFieldDrag(ev) {
   const idx = +ev.currentTarget.dataset.idx;
@@ -519,6 +558,7 @@ function endFieldDrag(ev) {
   const n = ev.currentTarget; n.removeEventListener('pointermove', onFieldDrag); n.removeEventListener('pointerup', endFieldDrag);
   fdrag = null;
   reorderManualForm();   // posisi berubah -> urutan input manual ikut menyesuaikan
+  histMark();
 }
 function saveDefaultTpl() {
   localStorage.setItem(OV(TKEY), JSON.stringify(coord));
@@ -595,7 +635,7 @@ function onPageSize(e) {
   const [w, h] = v.split('x').map(Number);
   if (!w || !h) return;
   coord.page.w = w; coord.page.h = h;          // tersimpan saat "Simpan Default"/"Simpan Global"
-  renderPreview(); fitPage(); updateStats();
+  renderPreview(); fitPage(); updateStats(); histMark();
 }
 // Re-encode gambar apa pun jadi JPEG (batasi dimensi & kompres) supaya ukuran terkendali.
 function imageToJpegBlob(file, maxDim, quality) {
@@ -649,6 +689,7 @@ function addElementFront(isField) {
   });
   buildManualForm(); renderPreview();
   selectField(coord.fields.length - 1);
+  histMark();
 }
 function deleteSelField() {
   if (selIdx < 0) return;
@@ -656,6 +697,7 @@ function deleteSelField() {
   if (!confirm('Hapus ' + (f.isField ? 'placeholder «' + f.key + '»' : 'teks ini') + '?')) return;
   coord.fields.splice(selIdx, 1); selIdx = -1;
   buildManualForm(); renderPreview(); selectField(-1);
+  histMark();
 }
 function onBg(e) {
   const file = e.target.files[0]; if (!file) return;
