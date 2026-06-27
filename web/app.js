@@ -1054,6 +1054,7 @@ const SAMPLE_PARENTS = ['H. Sulaiman', 'Hj. Maemunah', 'Bapak Sukarno', 'Ibu Sut
   'Hj. Aminah', 'Bapak Carwadi', 'Ibu Rohmah', 'H. Tarmidzi', 'Hj. Sukaesih'];
 const SAMPLE_MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const SAMPLE_HIJRI = ['Muharram', 'Shafar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Syaban', 'Ramadhan', 'Syawal', 'Dzulqodah', 'Dzulhijjah'];
+const SAMPLE_KEGIATAN = ['Lomba Tahfidz Juz 30 Tingkat Kecamatan', 'Musabaqah Tilawatil Qur’an', 'Lomba Adzan dan Iqamah', 'Cerdas Cermat Agama Islam', 'Lomba Kaligrafi Islami', 'Pesantren Kilat Ramadhan 1447 H', 'Lomba Pidato Bahasa Arab', 'Khataman Al-Qur’an Akbar'];
 const pad2 = (n) => String(n).padStart(2, '0');
 
 // Nilai contoh untuk satu field, bervariasi per baris (i). Field "tetap" pakai default.
@@ -1077,6 +1078,7 @@ function exampleValue(key, meta, i) {
   if (/alamat/.test(k)) return 'Jl. Masjid No. ' + (i + 1) + ', Pabean Udik';
   if (/nilai|skor|angka/.test(k)) return String(75 + (i % 21));
   if (/tahun|ajaran/.test(k)) return '2025/2026';
+  if (/keterangan|kegiatan|lomba|penghargaan|prestasi|acara/.test(k)) return SAMPLE_KEGIATAN[i % SAMPLE_KEGIATAN.length];
   return (meta && meta.label ? meta.label : key.replace(/_/g, ' ')) + ' ' + (i + 1);
 }
 

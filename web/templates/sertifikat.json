@@ -1,0 +1,17 @@
+{
+  "name": "Sertifikat",
+  "page": { "w": 841.89, "h": 595.28, "unit": "pt" },
+  "background": null,
+  "fields": [
+    { "key": "", "text": "SERTIFIKAT", "isField": false, "x": 420.9, "baseline": 135, "size": 46, "font": "Georgia", "bold": true, "italic": false, "color": "#1b5e3a", "align": "center" },
+    { "key": "", "text": "PENGHARGAAN", "isField": false, "x": 420.9, "baseline": 170, "size": 18, "font": "Georgia", "bold": true, "italic": false, "color": "#b8860b", "align": "center" },
+    { "key": "Nomor_Sertifikat", "text": null, "isField": true, "x": 420.9, "baseline": 200, "size": 12, "font": "Georgia", "bold": false, "italic": false, "color": "#555555", "align": "center" },
+    { "key": "", "text": "Diberikan kepada:", "isField": false, "x": 420.9, "baseline": 255, "size": 14, "font": "Georgia", "bold": false, "italic": false, "color": "#333333", "align": "center" },
+    { "key": "Nama_Lengkap", "text": null, "isField": true, "x": 420.9, "baseline": 312, "size": 34, "font": "Georgia", "bold": true, "italic": false, "color": "#1b5e3a", "align": "center" },
+    { "key": "", "text": "atas partisipasi dan dedikasinya dalam:", "isField": false, "x": 420.9, "baseline": 362, "size": 13, "font": "Georgia", "bold": false, "italic": true, "color": "#333333", "align": "center" },
+    { "key": "Keterangan", "text": null, "isField": true, "x": 420.9, "baseline": 400, "size": 16, "font": "Georgia", "bold": false, "italic": false, "color": "#222222", "align": "center" },
+    { "key": "Tempat_Tanggal", "text": null, "isField": true, "x": 650, "baseline": 458, "size": 12, "font": "Georgia", "bold": false, "italic": false, "color": "#333333", "align": "center" },
+    { "key": "", "text": "Kepala Madrasah,", "isField": false, "x": 650, "baseline": 480, "size": 12, "font": "Georgia", "bold": false, "italic": false, "color": "#333333", "align": "center" },
+    { "key": "Nama_Kepala", "text": null, "isField": true, "x": 650, "baseline": 542, "size": 14, "font": "Georgia", "bold": true, "italic": false, "color": "#1b5e3a", "align": "center" }
+  ]
+}

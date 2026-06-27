@@ -1,0 +1,11 @@
+{
+  "label": "Sertifikat",
+  "sheet": "SERTIFIKAT",
+  "fields": [
+    { "key": "Nomor_Sertifikat", "label": "Nomor Sertifikat", "ask": true },
+    { "key": "Nama_Lengkap", "label": "Nama Lengkap", "ask": true },
+    { "key": "Keterangan", "label": "Keterangan / Penghargaan", "ask": true },
+    { "key": "Tempat_Tanggal", "label": "Tempat, Tanggal", "ask": true },
+    { "key": "Nama_Kepala", "label": "Nama Kepala Madrasah", "ask": false, "default": "" }
+  ]
+}

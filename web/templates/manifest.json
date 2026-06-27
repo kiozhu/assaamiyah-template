@@ -17,6 +17,12 @@
       "name": "Nilai Ijazah",
       "file": "nilai_ijazah.json",
       "ready": true
+    },
+    {
+      "key": "sertifikat",
+      "name": "Sertifikat",
+      "file": "sertifikat.json",
+      "ready": true
     }
   ]
 }
