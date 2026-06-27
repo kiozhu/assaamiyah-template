@@ -177,6 +177,13 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 .fld input:focus{outline:none;border-color:var(--green-2);
   box-shadow:0 0 0 3px rgba(31,174,95,.18),0 0 18px rgba(31,174,95,.25)}
 .fld.const input{background:rgba(231,199,102,.06);border-color:rgba(231,199,102,.22)}
+.fld-in{display:flex;align-items:stretch;gap:6px}
+.fld-in input{flex:1 1 auto;min-width:0}
+.case-btn{flex:none;width:34px;border:1px solid var(--brd);border-radius:10px;background:var(--glass-2);
+  color:var(--muted);font-family:var(--display);font-size:12px;font-weight:700;cursor:pointer;
+  letter-spacing:.5px;transition:.15s;line-height:1}
+.case-btn:hover{border-color:var(--green-2);color:#bff7d6;box-shadow:0 0 12px rgba(31,174,95,.2)}
+.case-btn:active{transform:scale(.94)}
 
 /* ===== buttons ===== */
 .btn{position:relative;overflow:hidden;font-family:var(--display);font-weight:500;border-radius:11px;cursor:pointer;

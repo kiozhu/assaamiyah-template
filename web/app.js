@@ -196,6 +196,7 @@ function bindStatic() {
   $('#cancelEdit').onclick = cancelEdit;
   $('#exportExcel').onclick = exportExcel;
   $('#manualForm').oninput = onManualInput;   // pratinjau auto-refresh + auto-isi kolom Huruf
+  $('#manualForm').addEventListener('click', onCaseClick);   // tombol ubah huruf per kolom
   $('#nameModalSave').onclick = confirmAddName;
   $('#nameModalCancel').onclick = closeNameModal;
   $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
@@ -331,7 +332,10 @@ function buildManualForm() {
     const extra = huruf ? ` data-auto="${dv.trim() ? '0' : '1'}" placeholder="otomatis dari angka — bisa diedit"` : '';
     // mulai kosong; kecuali ada draft tersimpan (anti-hilang saat refresh)
     wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}${huruf ? ' ✨' : ''}</label>
-      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}"${extra} value="${escapeAttr(dv)}">`;
+      <div class="fld-in">
+        <input data-key="${key}" data-ask="${m.ask ? 1 : 0}"${extra} value="${escapeAttr(dv)}">
+        <button type="button" class="case-btn" tabindex="-1" title="Ubah huruf: BESAR SEMUA → Awal Kata → kecil semua">Aa</button>
+      </div>`;
     f.appendChild(wrap);
   });
   $('#manualActions').style.display = keys.length ? '' : 'none';
@@ -396,6 +400,25 @@ function onManualInput(e) {
     }
   }
   previewManual();
+}
+// Ubah format huruf satu kolom; klik berulang menyiklus 3 mode.
+const CASE_MODES = ['upper', 'title', 'lower'];
+const CASE_LABEL = { upper: 'AA', title: 'Aa', lower: 'aa' };
+function applyCase(s, mode) {
+  if (mode === 'upper') return s.toUpperCase();
+  if (mode === 'lower') return s.toLowerCase();
+  if (mode === 'title') return s.toLowerCase().replace(/(^|[\s.\-/(])(\p{L})/gu, (m, p, c) => p + c.toUpperCase());
+  return s;
+}
+function onCaseClick(e) {
+  const btn = e.target.closest('.case-btn'); if (!btn) return;
+  const inp = btn.closest('.fld-in') && btn.closest('.fld-in').querySelector('input'); if (!inp) return;
+  if (!inp.value.trim()) { inp.focus(); return; }
+  const next = CASE_MODES[(CASE_MODES.indexOf(inp.dataset.case || '') + 1) % CASE_MODES.length];
+  inp.dataset.case = next;
+  btn.textContent = CASE_LABEL[next];
+  inp.value = applyCase(inp.value, next);
+  onManualInput({ target: inp });               // huruf-autofill (bila kolom Angka) + simpan draft + pratinjau
 }
 // Pratinjau data yang sedang diketik TANPA menambahkannya ke daftar.
 function previewManual() {
