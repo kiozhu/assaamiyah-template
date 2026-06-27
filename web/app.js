@@ -74,6 +74,50 @@ function uniqueFieldKeys() {
   return [...pos.entries()].sort((a, c) => a[1].b - c[1].b || a[1].x - c[1].x).map(e => e[0]);
 }
 
+/* ---------- nilai: "Angka" -> "Huruf" (terbilang Bahasa Indonesia) ----------
+   Kolom *_Huruf otomatis dibuat dari *_Angka (mis. 6.25 -> "Enam koma dua lima").
+   Kolom Huruf jadi opsional di Excel (boleh dikosongkan) & tetap bisa diedit di web. */
+const TB_SATUAN = ['nol', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+function terbilang(n) {
+  n = Math.floor(Math.abs(n));
+  if (n < 12) return TB_SATUAN[n];
+  if (n < 20) return terbilang(n - 10) + ' belas';
+  if (n < 100) return terbilang(Math.floor(n / 10)) + ' puluh' + (n % 10 ? ' ' + terbilang(n % 10) : '');
+  if (n < 200) return 'seratus' + (n % 100 ? ' ' + terbilang(n % 100) : '');
+  if (n < 1000) return terbilang(Math.floor(n / 100)) + ' ratus' + (n % 100 ? ' ' + terbilang(n % 100) : '');
+  if (n < 2000) return 'seribu' + (n % 1000 ? ' ' + terbilang(n % 1000) : '');
+  if (n < 1000000) return terbilang(Math.floor(n / 1000)) + ' ribu' + (n % 1000 ? ' ' + terbilang(n % 1000) : '');
+  return String(n);
+}
+// "6.25"/"6,25" -> "Enam koma dua lima". Bukan angka -> '' (jangan generate).
+function spellNumberID(raw) {
+  if (raw == null) return '';
+  let s = String(raw).trim().replace(',', '.');
+  if (s === '' || !/^\d+(\.\d+)?$/.test(s)) return '';
+  const [intp, decp] = s.split('.');
+  let w = terbilang(parseInt(intp, 10));
+  if (decp != null && decp.length) w += ' koma ' + decp.split('').map(d => TB_SATUAN[+d]).join(' ');
+  return w.charAt(0).toUpperCase() + w.slice(1);
+}
+const isHurufKey = (k) => /_Huruf$/i.test(k);
+const angkaKeyFor = (k) => k.replace(/_Huruf$/i, '_Angka');
+// Huruf "turunan" = ada pasangan _Angka pada template ini -> boleh auto & opsional di Excel.
+const isDerivedHuruf = (k) => isHurufKey(k) && uniqueFieldKeys().includes(angkaKeyFor(k));
+const hurufKeyFor = (angkaKey) => {
+  if (!/_Angka$/i.test(angkaKey)) return null;
+  const hk = angkaKey.replace(/_Angka$/i, '_Huruf');
+  return uniqueFieldKeys().includes(hk) ? hk : null;
+};
+// Isi *_Huruf yang masih kosong dari *_Angka (tidak menimpa yang sudah diisi/diedit).
+function autofillHuruf(rec) {
+  uniqueFieldKeys().forEach(k => {
+    if (!isDerivedHuruf(k)) return;
+    const cur = rec[k];
+    if (cur == null || String(cur).trim() === '') { const w = spellNumberID(rec[angkaKeyFor(k)]); if (w) rec[k] = w; }
+  });
+  return rec;
+}
+
 /* ---------------- init ---------------- */
 async function init() {
   bindStatic();
@@ -151,7 +195,7 @@ function bindStatic() {
   $('#saveRecord').onclick = saveRecord;
   $('#cancelEdit').onclick = cancelEdit;
   $('#exportExcel').onclick = exportExcel;
-  $('#manualForm').oninput = previewManual;   // pratinjau auto-refresh tiap kolom diisi
+  $('#manualForm').oninput = onManualInput;   // pratinjau auto-refresh + auto-isi kolom Huruf
   $('#nameModalSave').onclick = confirmAddName;
   $('#nameModalCancel').onclick = closeNameModal;
   $('#nameModalInput').onkeydown = (e) => { if (e.key === 'Enter') confirmAddName(); else if (e.key === 'Escape') closeNameModal(); };
@@ -252,13 +296,16 @@ async function onExcel(e) {
       if (!r.some(c => String(c).trim() !== '')) continue;
       const o = {};
       headers.forEach((h, j) => { if (h) o[h] = (r[j] == null ? '' : String(r[j]).trim()); });
+      autofillHuruf(o);                            // *_Huruf kosong -> dibuat dari *_Angka
       data.push(o);
     }
-    const miss = uniqueFieldKeys().filter(k => !headers.includes(k));
+    // Kolom Huruf turunan tidak wajib ada (otomatis dari Angka).
+    const miss = uniqueFieldKeys().filter(k => !isDerivedHuruf(k) && !headers.includes(k));
     if (miss.length) { st.className = 'status err'; st.textContent = '⚠️ Kolom belum ada: ' + miss.join(', '); return; }
     if (!data.length) { st.className = 'status err'; st.textContent = 'Tidak ada baris data.'; return; }
     records = data; cur = 0; recordsByTpl[TKEY] = data; editingIdx = -1;
-    st.className = 'status ok'; st.textContent = `✅ ${data.length} data terbaca (sheet: ${name}).`;
+    const autoN = uniqueFieldKeys().filter(isDerivedHuruf).length;
+    st.className = 'status ok'; st.textContent = `✅ ${data.length} data terbaca (sheet: ${name}).` + (autoN ? ` Nilai huruf otomatis dibuat dari angka.` : '');
     statusByTpl[TKEY] = { cls: 'ok', text: st.textContent };
     persist();
     refreshRecords(); renderPreview();
@@ -278,9 +325,13 @@ function buildManualForm() {
     const m = meta[key] || { key, label: key.replace(/_/g, ' '), ask: true };
     const wrap = document.createElement('div');
     wrap.className = 'fld' + (m.ask ? '' : ' const');
+    const dv = draft[key] || '';
+    // Kolom Huruf turunan: tandai auto (0 bila sudah ada isian draft) + placeholder.
+    const huruf = isDerivedHuruf(key);
+    const extra = huruf ? ` data-auto="${dv.trim() ? '0' : '1'}" placeholder="otomatis dari angka — bisa diedit"` : '';
     // mulai kosong; kecuali ada draft tersimpan (anti-hilang saat refresh)
-    wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}</label>
-      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}" value="${escapeAttr(draft[key] || '')}">`;
+    wrap.innerHTML = `<label>${m.label || key.replace(/_/g, ' ')}${m.ask ? '' : ' (tetap)'}${huruf ? ' ✨' : ''}</label>
+      <input data-key="${key}" data-ask="${m.ask ? 1 : 0}"${extra} value="${escapeAttr(dv)}">`;
     f.appendChild(wrap);
   });
   $('#manualActions').style.display = keys.length ? '' : 'none';
@@ -312,7 +363,7 @@ function addManual() {
 // Simpan data dari dialog (dengan nama yang diberikan) ke daftar.
 function confirmAddName() {
   if (!pendingRecord) return;
-  const o = pendingRecord;
+  const o = autofillHuruf(pendingRecord);
   const name = $('#nameModalInput').value.trim();
   if (name) o.__label = name;                  // label tampilan di daftar (tidak ikut tercetak)
   records.push(o); cur = records.length - 1;
@@ -324,6 +375,27 @@ function confirmAddName() {
 function closeNameModal() {
   pendingRecord = null;
   $('#nameModal').classList.add('hidden');
+}
+// Input form manual: bila kolom *_Angka diubah, isi otomatis *_Huruf pasangannya
+// (kecuali kolom Huruf itu sudah diketik manual -> data-auto="0").
+function onManualInput(e) {
+  const inp = e.target;
+  if (inp && inp.tagName === 'INPUT' && inp.dataset.key) {
+    const key = inp.dataset.key;
+    if (isHurufKey(key)) {
+      inp.dataset.auto = '0';                       // user menulis Huruf sendiri -> jangan ditimpa
+    } else {
+      const hk = hurufKeyFor(key);
+      if (hk) {
+        const hinp = $('#manualForm').querySelector(`input[data-key="${hk}"]`);
+        if (hinp && hinp.dataset.auto !== '0') {
+          const w = spellNumberID(inp.value);
+          if (w || inp.value.trim() === '') { hinp.value = w; hinp.dataset.auto = '1'; }
+        }
+      }
+    }
+  }
+  previewManual();
 }
 // Pratinjau data yang sedang diketik TANPA menambahkannya ke daftar.
 function previewManual() {
@@ -352,7 +424,10 @@ function editRecord(i) {
   $('#tab-manual').classList.remove('hidden');
   buildManualForm();                            // bangun ulang field sesuai template
   const rec = records[i] || {};
-  $('#manualForm').querySelectorAll('input').forEach(inp => { const k = inp.dataset.key; inp.value = (rec[k] != null ? rec[k] : ''); });
+  $('#manualForm').querySelectorAll('input').forEach(inp => {
+    const k = inp.dataset.key; inp.value = (rec[k] != null ? rec[k] : '');
+    if (isHurufKey(k)) inp.dataset.auto = '1';   // ubah angka -> huruf ikut diperbarui (sampai diedit manual)
+  });
   refreshRecords();                             // sorot baris aktif (mereset manualPreview/note)
   manualPreview = readManualForm();             // pratinjau pakai data yang dimuat
   updateManualMode();
@@ -363,7 +438,7 @@ function editRecord(i) {
 // Simpan perubahan data yang sedang diedit ke daftar (langsung di web).
 function saveRecord() {
   if (editingIdx < 0 || editingIdx >= records.length) return;
-  const o = readManualForm();
+  const o = autofillHuruf(readManualForm());
   const old = records[editingIdx];
   if (old && old.__label) o.__label = old.__label;   // pertahankan nama tampilan kustom
   records[editingIdx] = o; cur = editingIdx;
@@ -943,7 +1018,9 @@ function exampleValue(key, meta, i) {
 
 // filled=false -> hanya header (format kosong). filled=true -> + 30 baris contoh terisi.
 function downloadSample(filled) {
-  const keys = uniqueFieldKeys();
+  // Kolom Huruf turunan tidak disertakan -> kolom Angka jadi berurutan (mudah copy-paste);
+  // nilai huruf dibuat otomatis saat di-upload ke web.
+  const keys = uniqueFieldKeys().filter(k => !isDerivedHuruf(k));
   if (!keys.length) { alert('Template ini belum punya field.'); return; }
   const meta = {}; (form.fields || []).forEach(m => meta[m.key] = m);
   const rows = [keys];
