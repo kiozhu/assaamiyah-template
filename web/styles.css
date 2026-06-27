@@ -290,6 +290,12 @@ main{display:grid;grid-template-columns:410px 1fr;gap:22px;padding:24px 24px 8px
 .tgmini:hover{border-color:var(--green-2)}
 .tgmini.on{background:linear-gradient(145deg,var(--green-2),var(--green));color:#04120a;border-color:transparent}
 .ep-pos{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+/* tombol ✕ melayang untuk hapus elemen terpilih langsung di pratinjau */
+.t-del{position:absolute;z-index:30;transform:translate(-50%,-50%);width:24px;height:24px;line-height:1;
+  border:2px solid #fff;border-radius:50%;background:#e23b3b;color:#fff;font-size:13px;font-weight:700;
+  cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.t-del:hover{background:#ff5252;transform:translate(-50%,-50%) scale(1.12)}
+.t-del.hidden{display:none}
 .a4 .t.editable{cursor:grab}
 .a4 .t.editable:hover{outline:1px solid rgba(31,140,200,.6);outline-offset:1px}
 .a4 .t.sel-edit{outline:2px solid #1f8fd0;outline-offset:1px;background:rgba(31,140,200,.08)}

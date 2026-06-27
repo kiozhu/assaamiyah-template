@@ -211,6 +211,7 @@ function bindStatic() {
     const tag = (document.activeElement.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'select') return;
     const f = coord.fields[selIdx]; if (!f) return;
+    if (ev.key === 'Delete' || ev.key === 'Backspace') { ev.preventDefault(); deleteSelField(); return; }
     const step = ev.shiftKey ? 10 : 1;
     if (ev.key === 'ArrowLeft') f.x -= step; else if (ev.key === 'ArrowRight') f.x += step;
     else if (ev.key === 'ArrowUp') f.baseline -= step; else if (ev.key === 'ArrowDown') f.baseline += step; else return;
@@ -418,6 +419,27 @@ function renderPreview() {
     if (editMode) div.addEventListener('pointerdown', startFieldDrag);
     page.appendChild(div);
   });
+  if (editMode) {
+    const del = document.createElement('button');
+    del.id = 'delBadge'; del.className = 't-del hidden'; del.type = 'button';
+    del.title = 'Hapus elemen ini'; del.textContent = '✕';
+    del.addEventListener('pointerdown', e => e.stopPropagation());
+    del.addEventListener('click', e => { e.stopPropagation(); deleteSelField(); });
+    page.appendChild(del);
+  }
+  positionDelBadge();
+}
+// Posisikan tombol ✕ melayang di pojok kanan-atas elemen yang sedang dipilih.
+function positionDelBadge() {
+  const badge = document.getElementById('delBadge'); if (!badge) return;
+  const d = selDiv();
+  if (!editMode || !d) { badge.classList.add('hidden'); return; }
+  const pr = $('#page').getBoundingClientRect();
+  const r = d.getBoundingClientRect();
+  const s = previewScale || 1;
+  badge.style.left = ((r.right - pr.left) / s) + 'px';
+  badge.style.top = ((r.top - pr.top) / s) + 'px';
+  badge.classList.remove('hidden');
 }
 function fitPage() {
   const stage = document.querySelector('.stage');
@@ -432,6 +454,7 @@ function fitPage() {
   // transform tidak mengubah ukuran layout -> kompensasi lebar & tinggi agar tidak meluber di HP
   page.style.marginRight = (w * (scale - 1)) + 'px';
   page.style.marginBottom = (h * (scale - 1)) + 'px';
+  positionDelBadge();
 }
 
 /* ---------------- edit di halaman depan ---------------- */
@@ -466,6 +489,7 @@ function selectField(idx) {
   $('#epBold').classList.toggle('on', !!f.bold);
   $('#epItalic').classList.toggle('on', !!f.italic);
   document.querySelectorAll('.epAl').forEach(b => b.classList.toggle('on', (f.align || 'left') === b.dataset.al));
+  positionDelBadge();
 }
 function selDiv() { return document.querySelector(`#page .t[data-idx="${selIdx}"]`); }
 function updateSel(prop, val) {
@@ -489,6 +513,7 @@ function onFieldDrag(ev) {
   f.baseline = Math.round((fdrag.oy + (ev.clientY - fdrag.sy) / (previewScale * PT)) * 10) / 10;
   const d = selDiv(); if (d) styleTextEl(d, f, currentRec());
   $('#epX').value = Math.round(f.x); $('#epY').value = Math.round(f.baseline);
+  positionDelBadge();
 }
 function endFieldDrag(ev) {
   const n = ev.currentTarget; n.removeEventListener('pointermove', onFieldDrag); n.removeEventListener('pointerup', endFieldDrag);
