@@ -824,7 +824,14 @@ async function doAdminLogin() {
       closeAdminModal(); updateAdminUI();
       if (!editMode) setEditMode(true);     // langsung masuk mode edit agar tombol Simpan Global terlihat
     } else { m.className = 'modal-msg err'; m.textContent = j.error || 'Gagal login'; }
-  } catch (e) { m.className = 'modal-msg err'; m.textContent = 'Gagal menghubungi server'; }
+  } catch (e) {
+    m.className = 'modal-msg err';
+    // Tampilkan alasan teknis agar mudah didiagnosis (mis. Failed to fetch = jaringan/cache/URL).
+    const hint = location.protocol !== 'https:'
+      ? ' — buka situs lewat https://, lalu refresh (Ctrl+Shift+R).'
+      : ' — coba hard refresh (Ctrl+Shift+R) atau mode Incognito.';
+    m.textContent = 'Gagal menghubungi server: ' + ((e && e.message) || e) + hint;
+  }
 }
 async function saveDefaultGlobal() {
   if (!adminToken) return openAdminModal();
