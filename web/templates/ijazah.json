@@ -150,11 +150,11 @@
     {
       "key": "Nama_Kepala",
       "text": null,
-      "x": 339.1,
+      "x": 340.1,
       "baseline": 738.2,
       "size": 12,
       "font": "Century",
-      "bold": false,
+      "bold": true,
       "isField": true
     }
   ]
