@@ -152,6 +152,30 @@ function autofillHuruf(rec) {
   });
   return rec;
 }
+// Versi aturan format angka/huruf. Naikkan bila aturan berubah -> data lama dimigrasi sekali.
+const FMT_VER = 3;
+// Terapkan format terbaru ke SEMUA record template aktif (memperbaiki data lama, bukan cuma yg disentuh).
+//  force=true  -> kolom Huruf turunan selalu dibuat ulang (migrasi sekali jalan).
+//  force=false -> Huruf hanya diperbarui saat angkanya berubah / masih kosong (jaga editan manual).
+function resyncRecordsFormat(force) {
+  if (!records || !records.length) return false;
+  const keys = uniqueFieldKeys();
+  let changed = false;
+  records.forEach(rec => {
+    keys.forEach(k => {
+      if (!isAngkaKey(k) || rec[k] == null || String(rec[k]).trim() === '') return;
+      const nv = fmtAngka(k, rec[k]);
+      const angkaChanged = nv !== rec[k];
+      if (angkaChanged) { rec[k] = nv; changed = true; }
+      const hk = hurufKeyFor(k);
+      if (hk && (force || angkaChanged || !rec[hk])) {
+        const w = spellNumberID(nv);
+        if (w && w !== rec[hk]) { rec[hk] = w; changed = true; }
+      }
+    });
+  });
+  return changed;
+}
 
 /* ---------------- init ---------------- */
 async function init() {
@@ -191,6 +215,12 @@ async function loadTemplate(key, forceShipped = false) {
   showBg = true; if ($('#showBg')) $('#showBg').checked = true;
   records = recordsByTpl[key] || (recordsByTpl[key] = []);   // data milik template ini saja
   cur = 0; editingIdx = -1;                                  // mulai segar di tiap template
+  // Rapikan SEMUA data lama ke format terbaru (migrasi sekali: paksa buat ulang Huruf).
+  let migr; try { migr = JSON.parse(localStorage.getItem('assa_fmt_migr') || '{}'); } catch { migr = {}; }
+  const needMigrate = migr[key] !== FMT_VER;
+  const ch = resyncRecordsFormat(needMigrate);
+  if (needMigrate) { migr[key] = FMT_VER; localStorage.setItem('assa_fmt_migr', JSON.stringify(migr)); }
+  if (ch) { recordsByTpl[key] = records; persist(); }
   renderPicker();
   // pulihkan status upload Excel khusus template ini (jangan bocor antar-template)
   const stEl = $('#excelStatus');
