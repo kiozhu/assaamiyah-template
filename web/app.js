@@ -103,16 +103,24 @@ const isAngkaKey = (k) => /_Angka$/i.test(k);
 const isJumlahAngka = (k) => /^Jumlah_Angka$/i.test(k);
 // Format angka baku untuk ditampilkan/disimpan.
 //  - SKHU, nilai mapel : geser koma jadi D,DD (67,5 -> 6,75 ; 845 -> 8,45 ; 9 -> 9,00).
-//  - SKHU, Jumlah/total: selalu 2 angka di belakang koma (50 -> 50,00 ; 50,5 -> 50,50).
+//  - SKHU, Jumlah/total: selalu 2 desimal & tetap puluhan.
+//      * ada koma  -> nilai apa adanya, dipaksa 2 desimal   (50 -> 50,00 ; 50,5 -> 50,50)
+//      * ratusan (tanpa koma, >=3 digit) -> geser ke puluhan (505 -> 50,50)
 //  - Template lain      : cukup pakai KOMA, bukan titik (6.75 -> 6,75).
 function fmtAngka(key, raw) {
   if (raw == null) return raw;
   let s = String(raw).trim();
   if (s === '' || !/\d/.test(s)) return s;        // kosong / bukan angka -> biarkan
   if (TKEY === 'skhu' && isAngkaKey(key)) {
-    if (isJumlahAngka(key)) {                      // total: nilai apa adanya, dipaksa 2 desimal
-      const num = parseFloat(s.replace(',', '.'));
-      return isFinite(num) ? num.toFixed(2).replace('.', ',') : s;
+    if (isJumlahAngka(key)) {                      // total
+      if (s.includes(',') || s.includes('.')) {   // sudah ada koma/titik -> cukup paksa 2 desimal
+        const num = parseFloat(s.replace(',', '.'));
+        return isFinite(num) ? num.toFixed(2).replace('.', ',') : s;
+      }
+      const d = s.replace(/\D/g, '');
+      if (!d) return s;
+      if (d.length >= 3) return d.slice(0, 2) + ',' + d.slice(2, 4).padEnd(2, '0');  // ratusan -> puluhan
+      return d + ',00';                           // puluhan/satuan -> tambah 2 desimal
     }
     const d = s.replace(/\D/g, '');               // mapel: ambil semua digit -> D,DD
     if (!d) return s;
