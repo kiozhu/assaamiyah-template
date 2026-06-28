@@ -84,29 +84,44 @@ function uniqueFieldKeys() {
 /* ---------- nilai: "Angka" -> "Huruf" (terbilang Bahasa Indonesia) ----------
    Kolom *_Huruf otomatis dibuat dari *_Angka (mis. 6.25 -> "Enam koma dua lima").
    Kolom Huruf jadi opsional di Excel (boleh dikosongkan) & tetap bisa diedit di web. */
-const TB_SATUAN = ['nol', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
-function terbilang(n) {
-  n = Math.floor(Math.abs(n));
-  if (n < 12) return TB_SATUAN[n];
-  if (n < 20) return terbilang(n - 10) + ' belas';
-  if (n < 100) return terbilang(Math.floor(n / 10)) + ' puluh' + (n % 10 ? ' ' + terbilang(n % 10) : '');
-  if (n < 200) return 'seratus' + (n % 100 ? ' ' + terbilang(n % 100) : '');
-  if (n < 1000) return terbilang(Math.floor(n / 100)) + ' ratus' + (n % 100 ? ' ' + terbilang(n % 100) : '');
-  if (n < 2000) return 'seribu' + (n % 1000 ? ' ' + terbilang(n % 1000) : '');
-  if (n < 1000000) return terbilang(Math.floor(n / 1000)) + ' ribu' + (n % 1000 ? ' ' + terbilang(n % 1000) : '');
-  return String(n);
-}
-// "6.25"/"6,25" -> "Enam koma dua lima". Bukan angka -> '' (jangan generate).
+const TB_SATUAN = ['nol', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan'];
+// Eja angka PER-DIGIT (tanpa puluh/ratus). "845" -> "Delapan empat lima",
+// "6,75" -> "Enam koma tujuh lima". Bukan angka -> '' (jangan generate).
 function spellNumberID(raw) {
   if (raw == null) return '';
   let s = String(raw).trim().replace(',', '.');
   if (s === '' || !/^\d+(\.\d+)?$/.test(s)) return '';
   const [intp, decp] = s.split('.');
-  let w = terbilang(parseInt(intp, 10));
-  if (decp != null && decp.length) w += ' koma ' + decp.split('').map(d => TB_SATUAN[+d]).join(' ');
+  const eja = (ds) => ds.split('').map(d => TB_SATUAN[+d]).join(' ');
+  let w = eja(intp);
+  if (decp != null && decp.length) w += ' koma ' + eja(decp);   // sebut "koma" bila ada koma
   return w.charAt(0).toUpperCase() + w.slice(1);
 }
 const isHurufKey = (k) => /_Huruf$/i.test(k);
+const isAngkaKey = (k) => /_Angka$/i.test(k);
+// "Jumlah" = total nilai (bisa >1 digit), JANGAN digeser komanya jadi D,DD.
+const isJumlahAngka = (k) => /^Jumlah_Angka$/i.test(k);
+// Format angka baku untuk ditampilkan/disimpan.
+//  - SKHU, kolom nilai mapel: geser koma jadi D,DD (67,5 -> 6,75 ; 845 -> 8,45 ; 9 -> 9,00).
+//  - Lainnya (Jumlah & semua template lain): cukup pakai KOMA, bukan titik (6.75 -> 6,75).
+function fmtAngka(key, raw) {
+  if (raw == null) return raw;
+  let s = String(raw).trim();
+  if (s === '' || !/\d/.test(s)) return s;        // kosong / bukan angka -> biarkan
+  if (TKEY === 'skhu' && isAngkaKey(key) && !isJumlahAngka(key)) {
+    const d = s.replace(/\D/g, '');               // ambil semua digit
+    if (!d) return s;
+    return d[0] + ',' + d.slice(1, 3).padEnd(2, '0');
+  }
+  return s.replace('.', ',');
+}
+// Terapkan fmtAngka ke semua kolom *_Angka pada satu record (di tempat).
+function normalizeAngka(rec) {
+  uniqueFieldKeys().forEach(k => {
+    if (isAngkaKey(k) && rec[k] != null && String(rec[k]).trim() !== '') rec[k] = fmtAngka(k, rec[k]);
+  });
+  return rec;
+}
 const angkaKeyFor = (k) => k.replace(/_Huruf$/i, '_Angka');
 // Huruf "turunan" = ada pasangan _Angka pada template ini -> boleh auto & opsional di Excel.
 const isDerivedHuruf = (k) => isHurufKey(k) && uniqueFieldKeys().includes(angkaKeyFor(k));
@@ -203,6 +218,7 @@ function bindStatic() {
   $('#cancelEdit').onclick = cancelEdit;
   $('#exportExcel').onclick = exportExcel;
   $('#manualForm').oninput = onManualInput;   // pratinjau auto-refresh + auto-isi kolom Huruf
+  $('#manualForm').addEventListener('change', onManualChange);  // saat keluar kolom angka -> rapikan ke format baku
   $('#manualForm').addEventListener('click', onCaseClick);   // tombol ubah huruf per kolom
   $('#manualForm').addEventListener('click', onLabelClick);  // klik nama kolom -> ganti nama tampilan
   $('#nameModalSave').onclick = confirmAddName;
@@ -305,6 +321,7 @@ async function onExcel(e) {
       if (!r.some(c => String(c).trim() !== '')) continue;
       const o = {};
       headers.forEach((h, j) => { if (h) o[h] = (r[j] == null ? '' : String(r[j]).trim()); });
+      normalizeAngka(o);                           // angka -> format baku (D,DD untuk SKHU; koma utk lainnya)
       autofillHuruf(o);                            // *_Huruf kosong -> dibuat dari *_Angka
       data.push(o);
     }
@@ -378,7 +395,7 @@ function addManual() {
 // Simpan data dari dialog (dengan nama yang diberikan) ke daftar.
 function confirmAddName() {
   if (!pendingRecord) return;
-  const o = autofillHuruf(pendingRecord);
+  const o = autofillHuruf(normalizeAngka(pendingRecord));
   const name = $('#nameModalInput').value.trim();
   if (name) o.__label = name;                  // label tampilan di daftar (tidak ikut tercetak)
   records.push(o); cur = records.length - 1;
@@ -409,6 +426,23 @@ function onManualInput(e) {
         }
       }
     }
+  }
+  previewManual();
+}
+// Saat fokus keluar dari kolom *_Angka: rapikan nilainya ke format baku (mis. SKHU 67,5 -> 6,75)
+// lalu perbarui kolom Huruf pasangannya (selama belum diedit manual).
+function onManualChange(e) {
+  const inp = e.target;
+  if (!inp || inp.tagName !== 'INPUT' || !inp.dataset.key || !isAngkaKey(inp.dataset.key)) return;
+  const v = inp.value.trim();
+  if (v === '') return;
+  const nv = fmtAngka(inp.dataset.key, v);
+  if (nv === inp.value) return;
+  inp.value = nv;
+  const hk = hurufKeyFor(inp.dataset.key);
+  if (hk) {
+    const hinp = $('#manualForm').querySelector(`input[data-key="${hk}"]`);
+    if (hinp && hinp.dataset.auto !== '0') { hinp.value = spellNumberID(nv); hinp.dataset.auto = '1'; }
   }
   previewManual();
 }
@@ -502,7 +536,7 @@ function editRecord(i) {
 // Simpan perubahan data yang sedang diedit ke daftar (langsung di web).
 function saveRecord() {
   if (editingIdx < 0 || editingIdx >= records.length) return;
-  const o = autofillHuruf(readManualForm());
+  const o = autofillHuruf(normalizeAngka(readManualForm()));
   const old = records[editingIdx];
   if (old && old.__label) o.__label = old.__label;   // pertahankan nama tampilan kustom
   records[editingIdx] = o; cur = editingIdx;
@@ -1101,6 +1135,7 @@ function downloadSample(filled) {
   if (filled) for (let i = 0; i < 30; i++) {
     const rec = {};
     all.forEach(k => { if (!isDerivedHuruf(k)) rec[k] = exampleValue(k, meta[k], i); });
+    normalizeAngka(rec);                         // angka contoh -> format baku (D,DD utk SKHU; koma)
     autofillHuruf(rec);                          // kolom Huruf contoh diisi dari Angka
     rows.push(keys.map(k => rec[k] != null ? rec[k] : ''));
   }
