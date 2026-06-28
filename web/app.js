@@ -99,18 +99,20 @@ function spellNumberID(raw) {
 }
 const isHurufKey = (k) => /_Huruf$/i.test(k);
 const isAngkaKey = (k) => /_Angka$/i.test(k);
-// "Jumlah" = total nilai (bisa >1 digit), JANGAN digeser komanya jadi D,DD.
+// "Jumlah" = total nilai SKHU: pakai aturan khusus (1 desimal), bukan D,DD.
 const isJumlahAngka = (k) => /^Jumlah_Angka$/i.test(k);
 // Format angka baku untuk ditampilkan/disimpan.
-//  - SKHU, kolom nilai mapel: geser koma jadi D,DD (67,5 -> 6,75 ; 845 -> 8,45 ; 9 -> 9,00).
-//  - Lainnya (Jumlah & semua template lain): cukup pakai KOMA, bukan titik (6.75 -> 6,75).
+//  - SKHU, nilai mapel : geser koma jadi D,DD (67,5 -> 6,75 ; 845 -> 8,45 ; 9 -> 9,00).
+//  - SKHU, Jumlah/total: satu desimal, koma 1 digit dari kanan (505 -> 50,5).
+//  - Template lain      : cukup pakai KOMA, bukan titik (6.75 -> 6,75).
 function fmtAngka(key, raw) {
   if (raw == null) return raw;
   let s = String(raw).trim();
   if (s === '' || !/\d/.test(s)) return s;        // kosong / bukan angka -> biarkan
-  if (TKEY === 'skhu' && isAngkaKey(key) && !isJumlahAngka(key)) {
+  if (TKEY === 'skhu' && isAngkaKey(key)) {
     const d = s.replace(/\D/g, '');               // ambil semua digit
     if (!d) return s;
+    if (isJumlahAngka(key)) return d.length < 2 ? '0,' + d : d.slice(0, -1) + ',' + d.slice(-1);
     return d[0] + ',' + d.slice(1, 3).padEnd(2, '0');
   }
   return s.replace('.', ',');
