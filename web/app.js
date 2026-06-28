@@ -95,7 +95,7 @@ function spellNumberID(raw) {
   const eja = (ds) => ds.split('').map(d => TB_SATUAN[+d]).join(' ');
   let w = eja(intp);
   if (decp != null && decp.length) w += ' koma ' + eja(decp);   // sebut "koma" bila ada koma
-  return w.charAt(0).toUpperCase() + w.slice(1);
+  return w.split(' ').map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' ');  // Kapital tiap kata
 }
 const isHurufKey = (k) => /_Huruf$/i.test(k);
 const isAngkaKey = (k) => /_Angka$/i.test(k);
