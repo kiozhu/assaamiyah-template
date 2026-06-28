@@ -112,15 +112,12 @@ function fmtAngka(key, raw) {
   let s = String(raw).trim();
   if (s === '' || !/\d/.test(s)) return s;        // kosong / bukan angka -> biarkan
   if (TKEY === 'skhu' && isAngkaKey(key)) {
-    if (isJumlahAngka(key)) {                      // total
-      if (s.includes(',') || s.includes('.')) {   // sudah ada koma/titik -> cukup paksa 2 desimal
-        const num = parseFloat(s.replace(',', '.'));
-        return isFinite(num) ? num.toFixed(2).replace('.', ',') : s;
-      }
+    if (isJumlahAngka(key)) {                      // total -> SELALU puluhan & 2 desimal: XX,XX
+      // Abaikan koma lama yg mungkin salah (mis. 505,00 -> tetap ratusan). Pakai deret digitnya:
+      // 2 digit pertama jadi puluhan, 2 berikutnya jadi desimal. 505->50,50 ; 50,5->50,50 ; 50->50,00.
       const d = s.replace(/\D/g, '');
       if (!d) return s;
-      if (d.length >= 3) return d.slice(0, 2) + ',' + d.slice(2, 4).padEnd(2, '0');  // ratusan -> puluhan
-      return d + ',00';                           // puluhan/satuan -> tambah 2 desimal
+      return d.slice(0, 2) + ',' + d.slice(2, 4).padEnd(2, '0');
     }
     const d = s.replace(/\D/g, '');               // mapel: ambil semua digit -> D,DD
     if (!d) return s;
@@ -153,7 +150,7 @@ function autofillHuruf(rec) {
   return rec;
 }
 // Versi aturan format angka/huruf. Naikkan bila aturan berubah -> data lama dimigrasi sekali.
-const FMT_VER = 3;
+const FMT_VER = 4;
 // Terapkan format terbaru ke SEMUA record template aktif (memperbaiki data lama, bukan cuma yg disentuh).
 //  force=true  -> kolom Huruf turunan selalu dibuat ulang (migrasi sekali jalan).
 //  force=false -> Huruf hanya diperbarui saat angkanya berubah / masih kosong (jaga editan manual).
