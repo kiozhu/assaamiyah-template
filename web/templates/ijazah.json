@@ -70,7 +70,7 @@
     {
       "key": "Desa",
       "text": null,
-      "x": 118.2,
+      "x": 133.2,
       "baseline": 375.6,
       "size": 12,
       "font": "Century",
@@ -80,7 +80,7 @@
     {
       "key": "Desa_Kecamatan",
       "text": null,
-      "x": 118.2,
+      "x": 133.2,
       "baseline": 545.8,
       "size": 12,
       "font": "Century",
@@ -100,7 +100,7 @@
     {
       "key": null,
       "text": "Kabupaten Indramayu",
-      "x": 118.2,
+      "x": 133.2,
       "baseline": 564.7,
       "size": 12,
       "font": "Century",
