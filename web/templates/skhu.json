@@ -140,7 +140,7 @@
     {
       "key": "Quran_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 484.3,
       "size": 12,
       "font": "Times New Roman",
@@ -166,7 +166,7 @@
     {
       "key": "Hadits_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 500.4,
       "size": 12,
       "font": "Times New Roman",
@@ -192,7 +192,7 @@
     {
       "key": "Aqidah_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 515.8,
       "size": 12,
       "font": "Times New Roman",
@@ -218,7 +218,7 @@
     {
       "key": "Akhlaq_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 529.7,
       "size": 12,
       "font": "Times New Roman",
@@ -244,7 +244,7 @@
     {
       "key": "Fiqih_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 545.7,
       "size": 12,
       "font": "Times New Roman",
@@ -270,7 +270,7 @@
     {
       "key": "TarikhIslam_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 561.2,
       "size": 12,
       "font": "Times New Roman",
@@ -296,7 +296,7 @@
     {
       "key": "BahasaArab_Huruf",
       "text": null,
-      "x": 293.8,
+      "x": 298.8,
       "baseline": 576.7,
       "size": 12,
       "font": "Times New Roman",
@@ -309,7 +309,7 @@
     {
       "key": "Jumlah_Angka",
       "text": null,
-      "x": 246.9,
+      "x": 245.9,
       "baseline": 597.6,
       "size": 12,
       "font": "Times New Roman",
@@ -322,7 +322,7 @@
     {
       "key": "Jumlah_Huruf",
       "text": null,
-      "x": 293.6,
+      "x": 298.6,
       "baseline": 597.3,
       "size": 12,
       "font": "Times New Roman",
