@@ -120,8 +120,8 @@
     {
       "key": "Tanggal_Masehi",
       "text": null,
-      "x": 354.5,
-      "baseline": 630.2,
+      "x": 346.5,
+      "baseline": 631.2,
       "size": 12,
       "font": "Times New Roman",
       "bold": true,
@@ -130,7 +130,7 @@
     {
       "key": "Tanggal_Hijriah",
       "text": null,
-      "x": 381.5,
+      "x": 371.5,
       "baseline": 654.7,
       "size": 12,
       "font": "Times New Roman",
