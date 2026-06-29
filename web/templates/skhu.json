@@ -10,8 +10,8 @@
     {
       "key": "Nama",
       "text": null,
-      "x": 265.6,
-      "baseline": 253.8,
+      "x": 271.6,
+      "baseline": 254.8,
       "size": 12,
       "font": "Times New Roman",
       "bold": true,
@@ -23,7 +23,7 @@
     {
       "key": "Nomor_Induk_Siswa",
       "text": null,
-      "x": 265.1,
+      "x": 271.1,
       "baseline": 269.8,
       "size": 12,
       "font": "Times New Roman",
@@ -36,8 +36,8 @@
     {
       "key": "Nomor_Peserta",
       "text": null,
-      "x": 264.6,
-      "baseline": 284,
+      "x": 270.6,
+      "baseline": 284.3,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -49,7 +49,7 @@
     {
       "key": "Tempat_Tanggal_Lahir",
       "text": null,
-      "x": 264.7,
+      "x": 270.7,
       "baseline": 299.1,
       "size": 12,
       "font": "Times New Roman",
@@ -62,8 +62,8 @@
     {
       "key": "Jenis_Kelamin",
       "text": null,
-      "x": 264.6,
-      "baseline": 313.8,
+      "x": 270.6,
+      "baseline": 314.6,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -75,8 +75,8 @@
     {
       "key": "Anak_Dari",
       "text": null,
-      "x": 264.3,
-      "baseline": 329.3,
+      "x": 270.3,
+      "baseline": 328.3,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -88,8 +88,8 @@
     {
       "key": "Asal_MDTU",
       "text": null,
-      "x": 264.6,
-      "baseline": 342.8,
+      "x": 270.6,
+      "baseline": 343.1,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -101,7 +101,7 @@
     {
       "key": "Nomor_Statistik",
       "text": null,
-      "x": 264.6,
+      "x": 270.6,
       "baseline": 358.3,
       "size": 12,
       "font": "Times New Roman",
@@ -114,7 +114,7 @@
     {
       "key": "Kecamatan",
       "text": null,
-      "x": 264.4,
+      "x": 270.4,
       "baseline": 372.6,
       "size": 12,
       "font": "Times New Roman",
@@ -127,7 +127,7 @@
     {
       "key": "Quran_Angka",
       "text": null,
-      "x": 246,
+      "x": 248,
       "baseline": 484.4,
       "size": 12,
       "font": "Times New Roman",
@@ -140,8 +140,8 @@
     {
       "key": "Quran_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 484.3,
+      "x": 302.8,
+      "baseline": 483.3,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -153,7 +153,7 @@
     {
       "key": "Hadits_Angka",
       "text": null,
-      "x": 246,
+      "x": 248,
       "baseline": 499.6,
       "size": 12,
       "font": "Times New Roman",
@@ -166,8 +166,8 @@
     {
       "key": "Hadits_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 500.4,
+      "x": 302.8,
+      "baseline": 499.4,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -179,7 +179,7 @@
     {
       "key": "Aqidah_Angka",
       "text": null,
-      "x": 246,
+      "x": 248,
       "baseline": 514.6,
       "size": 12,
       "font": "Times New Roman",
@@ -192,8 +192,8 @@
     {
       "key": "Aqidah_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 515.8,
+      "x": 302.8,
+      "baseline": 513.8,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -205,7 +205,7 @@
     {
       "key": "Akhlaq_Angka",
       "text": null,
-      "x": 246,
+      "x": 248,
       "baseline": 530.1,
       "size": 12,
       "font": "Times New Roman",
@@ -218,8 +218,8 @@
     {
       "key": "Akhlaq_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 529.7,
+      "x": 302.8,
+      "baseline": 528.7,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -231,7 +231,7 @@
     {
       "key": "Fiqih_Angka",
       "text": null,
-      "x": 246,
+      "x": 248.8,
       "baseline": 545.6,
       "size": 12,
       "font": "Times New Roman",
@@ -244,8 +244,8 @@
     {
       "key": "Fiqih_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 545.7,
+      "x": 302.8,
+      "baseline": 544.7,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -257,7 +257,7 @@
     {
       "key": "TarikhIslam_Angka",
       "text": null,
-      "x": 246,
+      "x": 248,
       "baseline": 560.7,
       "size": 12,
       "font": "Times New Roman",
@@ -270,8 +270,8 @@
     {
       "key": "TarikhIslam_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 561.2,
+      "x": 302.8,
+      "baseline": 560.2,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -283,7 +283,7 @@
     {
       "key": "BahasaArab_Angka",
       "text": null,
-      "x": 247,
+      "x": 249,
       "baseline": 577.2,
       "size": 12,
       "font": "Times New Roman",
@@ -296,8 +296,8 @@
     {
       "key": "BahasaArab_Huruf",
       "text": null,
-      "x": 298.8,
-      "baseline": 576.7,
+      "x": 302.8,
+      "baseline": 576,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
@@ -309,7 +309,7 @@
     {
       "key": "Jumlah_Angka",
       "text": null,
-      "x": 245.9,
+      "x": 247.9,
       "baseline": 597.6,
       "size": 12,
       "font": "Times New Roman",
@@ -322,8 +322,8 @@
     {
       "key": "Jumlah_Huruf",
       "text": null,
-      "x": 298.6,
-      "baseline": 597.3,
+      "x": 302.4,
+      "baseline": 597.1,
       "size": 12,
       "font": "Times New Roman",
       "bold": false,
